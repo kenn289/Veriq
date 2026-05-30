@@ -30,6 +30,11 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
     seed_roles_on_startup: bool = True
+    # AI test generation settings
+    test_generation_provider: str = "rule"  # 'rule' or 'model'
+    llm_model_name: str | None = None
+    llm_adapter_dir: str | None = None
+    generation_defaults: dict | None = None
 
     model_config = SettingsConfigDict(env_prefix="VERIQ_", env_file=".env", extra="ignore")
 

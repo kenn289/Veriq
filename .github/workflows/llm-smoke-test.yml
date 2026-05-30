@@ -1,0 +1,96 @@
+name: LLM smoke test
+
+on:
+  push:
+    paths:
+      - 'backend/llm/**'
+  pull_request:
+    paths:
+      - 'backend/llm/**'
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/llm/requirements.txt
+          pip install minio
+      - name: Run tiny LoRA train
+        run: |
+          python backend/llm/train_lora.py --model-name distilgpt2 --data backend/llm/sample_data.jsonl --output-dir backend/llm/adapters/ci-lora --num-steps 2
+      - name: Quick infer with adapter
+        run: |
+          python backend/llm/quick_infer_with_adapter.py
+      - name: Upload adapter artifacts to MinIO (optional)
+        if: ${{ secrets.MINIO_ENDPOINT && secrets.MINIO_ACCESS_KEY && secrets.MINIO_SECRET_KEY }}
+        env:
+          MINIO_ENDPOINT: ${{ secrets.MINIO_ENDPOINT }}
+          MINIO_ACCESS_KEY: ${{ secrets.MINIO_ACCESS_KEY }}
+          MINIO_SECRET_KEY: ${{ secrets.MINIO_SECRET_KEY }}
+          MINIO_BUCKET: ${{ secrets.MINIO_BUCKET }}
+          ADAPTER_DIR: backend/llm/adapters/ci-lora
+          RETENTION_DAYS: '7'
+        run: |
+          python backend/llm/ci_upload_adapter.py
+
+      - name: Install mc (MinIO Client) and apply lifecycle (optional)
+        if: ${{ secrets.MINIO_ENDPOINT && secrets.MINIO_ACCESS_KEY && secrets.MINIO_SECRET_KEY }}
+        env:
+          MINIO_ENDPOINT: ${{ secrets.MINIO_ENDPOINT }}
+          MINIO_ACCESS_KEY: ${{ secrets.MINIO_ACCESS_KEY }}
+          MINIO_SECRET_KEY: ${{ secrets.MINIO_SECRET_KEY }}
+          BUCKET: ${{ secrets.MINIO_BUCKET }}
+        run: |
+          # install mc
+          curl -fsSL https://dl.min.io/client/mc/release/linux-amd64/mc -o mc
+          chmod +x mc
+          sudo mv mc /usr/local/bin/
+          # run lifecycle script which uses mc alias set + ilm import
+          bash backend/llm/set_minio_lifecycle.sh
+      - name: Validate lifecycle import
+        if: ${{ secrets.MINIO_ENDPOINT && secrets.MINIO_ACCESS_KEY && secrets.MINIO_SECRET_KEY }}
+        env:
+          MINIO_ENDPOINT: ${{ secrets.MINIO_ENDPOINT }}
+          MINIO_ACCESS_KEY: ${{ secrets.MINIO_ACCESS_KEY }}
+          MINIO_SECRET_KEY: ${{ secrets.MINIO_SECRET_KEY }}
+          BUCKET: ${{ secrets.MINIO_BUCKET }}
+        run: |
+          # export lifecycle and ensure our rule is present
+          mc ilm export minio/${{ secrets.MINIO_BUCKET }} | grep -q "adapters-expire" || (echo "Lifecycle rule not found" && exit 1)
+      - name: Verify uploaded objects exist
+        if: ${{ secrets.MINIO_ENDPOINT && secrets.MINIO_ACCESS_KEY && secrets.MINIO_SECRET_KEY }}
+        env:
+          MINIO_BUCKET: ${{ secrets.MINIO_BUCKET }}
+        run: |
+          # list objects under adapters/ci-lora and ensure some files exist
+          mc ls minio/${{ secrets.MINIO_BUCKET }}/adapters/ci-lora || (echo "No uploaded adapter objects found" && exit 1)
+      - name: Cleanup test adapter (mc)
+        if: ${{ secrets.MINIO_ENDPOINT && secrets.MINIO_ACCESS_KEY && secrets.MINIO_SECRET_KEY }}
+        env:
+          MINIO_BUCKET: ${{ secrets.MINIO_BUCKET }}
+        run: |
+          mc rm --recursive --force minio/${{ secrets.MINIO_BUCKET }}/adapters/ci-lora || true
+
+  env-persistence-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install test deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt || true
+      - name: Run env persistence integration test (disable coverage gate)
+        run: |
+          python -m pip install pytest
+          pytest -q -o addopts= backend/tests/integration/test_env_persistence.py

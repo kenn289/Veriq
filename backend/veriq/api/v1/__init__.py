@@ -3,7 +3,7 @@
 from fastapi import APIRouter
 
 from veriq.api.v1.routes import auth, health, organizations, projects, workspaces
-from veriq.api.v1.routes import test_cases, test_generation, test_runs
+from veriq.api.v1.routes import test_cases, test_generation, test_runs, ai_config
 
 router = APIRouter()
 router.include_router(health.router)
@@ -13,4 +13,5 @@ router.include_router(workspaces.router)
 router.include_router(projects.router)
 router.include_router(test_cases.router)
 router.include_router(test_generation.router)
+router.include_router(ai_config.router)
 router.include_router(test_runs.router)

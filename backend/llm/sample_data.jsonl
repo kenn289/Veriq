@@ -1,0 +1,2 @@
+{"prompt": "Requirement: Users can log in with email and password\nInstruction: Generate a concise test scenario for a happy path.", "completion": "Successful login: user enters valid email and password and is redirected to dashboard."}
+{"prompt": "Requirement: Users can log in with email and password\nInstruction: Generate a concise negative test scenario.", "completion": "Invalid credentials: user enters wrong password and sees an error message."}

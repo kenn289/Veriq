@@ -1,0 +1,32 @@
+name: LLM periodic cleanup
+
+on:
+  schedule:
+    - cron: '0 2 * * 0' # weekly on Sunday at 02:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
++      - name: Setup Python
++        uses: actions/setup-python@v4
++        with:
++          python-version: '3.11'
++      - name: Install dependencies
++        run: |
++          python -m pip install --upgrade pip
++          pip install minio
++      - name: Run cleanup-only
++        if: ${{ secrets.MINIO_ENDPOINT && secrets.MINIO_ACCESS_KEY && secrets.MINIO_SECRET_KEY }}
++        env:
++          MINIO_ENDPOINT: ${{ secrets.MINIO_ENDPOINT }}
++          MINIO_ACCESS_KEY: ${{ secrets.MINIO_ACCESS_KEY }}
++          MINIO_SECRET_KEY: ${{ secrets.MINIO_SECRET_KEY }}
++          MINIO_BUCKET: ${{ secrets.MINIO_BUCKET }}
++          ADAPTER_DIR: backend/llm/adapters/ci-lora
++          RETENTION_DAYS: '30'
++        run: |
++          python backend/llm/ci_upload_adapter.py --cleanup-only
+*** End Patch

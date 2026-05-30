@@ -1,0 +1,12 @@
+compute_environment: LOCAL_MACHINE
+distributed_type: NO
+downcast_bf16: 'no'
+fp16: true
+deepspeed_config:
+  zero_optimization:
+    stage: 3
+    offload_optimizer: false
+    offload_param: false
+
+# This config assumes a single 80GB GPU (A100/H100) and enables fp16 training.
+

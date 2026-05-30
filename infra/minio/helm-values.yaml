@@ -1,0 +1,20 @@
+# Example Helm values for MinIO deployment (for Kubernetes)
+replicaCount: 4
+
+persistence:
+  enabled: true
+  size: 200Gi
+
+resources:
+  requests:
+    cpu: 2000m
+    memory: 8Gi
+  limits:
+    cpu: 4000m
+    memory: 16Gi
+
+service:
+  type: ClusterIP
+
+# Access/secret should be provided via Kubernetes secrets
+# See docs/MINIO_PRODUCTION_PLAYBOOK.md for recommended settings

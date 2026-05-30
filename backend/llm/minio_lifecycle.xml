@@ -1,0 +1,12 @@
+<LifecycleConfiguration>
+  <Rule>
+    <ID>adapters-expire</ID>
+    <Status>Enabled</Status>
+    <Filter>
+      <Prefix>adapters/</Prefix>
+    </Filter>
+    <Expiration>
+      <Days>30</Days>
+    </Expiration>
+  </Rule>
+</LifecycleConfiguration>

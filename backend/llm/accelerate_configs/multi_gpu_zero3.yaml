@@ -1,0 +1,11 @@
+compute_environment: MULTI_MACHINE
+distributed_type: MULTI_GPU
+downcast_bf16: 'no'
+fp16: true
+zero_stage: 3
+zero_optimization:
+  offload_optimizer: true
+  offload_param: true
+
+# Use this with `accelerate launch --config_file backend/llm/accelerate_configs/multi_gpu_zero3.yaml your_train.py`
+# Requires an accelerate config and environment variables describing the machines/GPUs.
