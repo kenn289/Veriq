@@ -1,0 +1,58 @@
+from __future__ import annotations
+
+from fastapi import FastAPI
+
+from veriq.api.v1 import router as v1_router
+from veriq.infrastructure.config.settings import get_settings
+from veriq.infrastructure.db.seed import seed_roles
+from veriq.infrastructure.db.session import get_session_factory
+
+
+def create_app(seed_roles_on_startup: bool | None = None) -> FastAPI:
+    """Description: Build the FastAPI application.
+    Parameters:
+        seed_roles_on_startup: Optional override for role seeding.
+    Returns:
+        FastAPI: Configured application instance.
+    Usage Example:
+        app = create_app(seed_roles_on_startup=False)
+    """
+
+    settings = get_settings()
+    app = FastAPI(
+        title=settings.app_name,
+        version=settings.app_version,
+        description="Veriq API for autonomous test engineering.",
+    )
+
+    @app.on_event("startup")
+    def _startup() -> None:
+        """Description: Run startup hooks for database seeding.
+        Parameters:
+            None
+        Returns:
+            None
+        Usage Example:
+            _startup()
+        """
+
+        should_seed = (
+            settings.seed_roles_on_startup
+            if seed_roles_on_startup is None
+            else seed_roles_on_startup
+        )
+        if not should_seed:
+            return
+
+        session_factory = get_session_factory()
+        session = session_factory()
+        try:
+            seed_roles(session)
+        finally:
+            session.close()
+
+    app.include_router(v1_router, prefix="/api/v1")
+    return app
+
+
+app = create_app()
