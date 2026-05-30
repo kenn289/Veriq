@@ -3,9 +3,7 @@ from __future__ import annotations
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from veriq.api.dependencies.db import get_session
 from veriq.infrastructure.db.models import UserModel, WorkspaceModel
-from veriq.main import create_app
 
 
 def test_create_test_case(db_session: Session, client: TestClient) -> None:
@@ -20,8 +18,7 @@ def test_create_test_case(db_session: Session, client: TestClient) -> None:
     """
 
     # Create test data
-    from veriq.infrastructure.db.models import TenantModel, UserModel, WorkspaceModel
-    from veriq.infrastructure.repositories import user_repository, workspace_repository
+    from veriq.infrastructure.db.models import TenantModel
     from veriq.infrastructure.security.passwords import hash_password
 
     tenant = TenantModel(name="Test Tenant", slug="test-tenant")
@@ -37,9 +34,7 @@ def test_create_test_case(db_session: Session, client: TestClient) -> None:
     db_session.add(user)
     db_session.flush()
 
-    workspace = WorkspaceModel(
-        organization_id="org1", name="Test Workspace", slug="test-ws"
-    )
+    workspace = WorkspaceModel(organization_id="org1", name="Test Workspace", slug="test-ws")
     db_session.add(workspace)
     db_session.flush()
 
@@ -66,9 +61,8 @@ def test_test_case_lifecycle(db_session: Session) -> None:
         test_test_case_lifecycle(db_session)
     """
 
-    from veriq.infrastructure.repositories import test_case_repository as tc_repo
-    from veriq.infrastructure.repositories import test_step_repository as ts_repo
     from veriq.application.services import test_case_service
+    from veriq.infrastructure.repositories import test_step_repository as ts_repo
 
     workspace_id = "ws123"
 
@@ -131,8 +125,7 @@ def test_test_run_lifecycle(db_session: Session) -> None:
         test_test_run_lifecycle(db_session)
     """
 
-    from veriq.application.services import test_run_service, test_case_service
-    from veriq.infrastructure.repositories import test_result_repository as trs_repo
+    from veriq.application.services import test_case_service, test_run_service
 
     workspace_id = "ws123"
 
@@ -155,9 +148,7 @@ def test_test_run_lifecycle(db_session: Session) -> None:
     assert test_run.total_count == 0
 
     # Start run
-    started_run = test_run_service.start_test_run(
-        session=db_session, test_run_id=test_run.id
-    )
+    started_run = test_run_service.start_test_run(session=db_session, test_run_id=test_run.id)
     assert started_run is not None
     assert started_run.status == "in_progress"
 

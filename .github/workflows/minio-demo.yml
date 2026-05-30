@@ -1,0 +1,54 @@
+name: MinIO Demo End-to-End
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    env:
+      MINIO_ROOT_USER: demo
+      MINIO_ROOT_PASSWORD: demo12345
+    steps:
+      - name: Start MinIO container
+        run: |
+          docker run -d --name minio-demo -p 9000:9000 -e MINIO_ROOT_USER=${{ env.MINIO_ROOT_USER }} -e MINIO_ROOT_PASSWORD=${{ env.MINIO_ROOT_PASSWORD }} minio/minio:latest server /data
+          sleep 3
+      - name: Install mc and python deps
+        run: |
+          sudo apt-get update && sudo apt-get install -y jq
+          curl -fsSL https://dl.min.io/client/mc/release/linux-amd64/mc -o mc
+          chmod +x mc
+          sudo mv mc /usr/local/bin/
+          python -m pip install --upgrade pip
+          pip install -r backend/llm/requirements.txt
+          pip install minio
+      - name: Configure mc alias
+        run: |
+          mc alias set minio http://127.0.0.1:9000 ${{ env.MINIO_ROOT_USER }} ${{ env.MINIO_ROOT_PASSWORD }} --api S3v4
+      - name: Create bucket
+        run: |
+          mc mb minio/veriq-artifacts || true
+      - name: Run tiny LoRA train (ci adapter)
+        run: |
+          python backend/llm/train_lora.py --model-name distilgpt2 --data backend/llm/sample_data.jsonl --output-dir backend/llm/adapters/ci-lora --num-steps 2
+      - name: Upload adapter with script
+        run: |
+          export MINIO_ENDPOINT=http://127.0.0.1:9000
+          export MINIO_ACCESS_KEY=${{ env.MINIO_ROOT_USER }}
+          export MINIO_SECRET_KEY=${{ env.MINIO_ROOT_PASSWORD }}
+          export MINIO_BUCKET=veriq-artifacts
+          export ADAPTER_DIR=backend/llm/adapters/ci-lora
+          python backend/llm/ci_upload_adapter.py
+      - name: Apply lifecycle via mc
+        run: |
+          mc ilm import minio/veriq-artifacts backend/llm/minio_lifecycle.xml || true
+      - name: Validate upload exists
+        run: |
+          mc ls minio/veriq-artifacts/adapters/ci-lora || (echo "Upload missing" && exit 1)
+      - name: Cleanup
+        run: |
+          mc rm --recursive --force minio/veriq-artifacts/adapters/ci-lora || true
+          docker stop minio-demo || true
+          docker rm minio-demo || true
+*** End Patch

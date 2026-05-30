@@ -13,28 +13,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-+      - name: Setup Terraform
-+        uses: hashicorp/setup-terraform@v2
-+        with:
-+          terraform_version: 1.5.7
-+      - name: Configure kubeconfig
-+        env:
-+          KUBECONFIG_BASE64: ${{ secrets.KUBECONFIG_BASE64 }}
-+        run: |
-+          if [ -z "$KUBECONFIG_BASE64" ]; then echo "KUBECONFIG_BASE64 secret is required"; exit 1; fi
-+          echo "$KUBECONFIG_BASE64" | base64 --decode > ./kubeconfig
-+          export KUBECONFIG=$(pwd)/kubeconfig
-+      - name: Terraform Init
-+        run: |
-+          cd infra/minio/module
-+          terraform init -input=false
-+      - name: Terraform Plan
-+        run: |
-+          cd infra/minio/module
-+          terraform plan -out=plan.out -input=false
-+      - name: Terraform Apply (manual)
-+        if: ${{ github.event.inputs.apply == 'true' }}
-+        run: |
-+          cd infra/minio/module
-+          terraform apply -input=false -auto-approve plan.out
-*** End Patch
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.7
+      - name: Configure kubeconfig
+        env:
+          KUBECONFIG_BASE64: ${{ secrets.KUBECONFIG_BASE64 }}
+        run: |
+          if [ -z "$KUBECONFIG_BASE64" ]; then echo "KUBECONFIG_BASE64 secret is required"; exit 1; fi
+          echo "$KUBECONFIG_BASE64" | base64 --decode > ./kubeconfig
+          export KUBECONFIG=$(pwd)/kubeconfig
+      - name: Terraform Init
+        run: |
+          cd infra/minio/module
+          terraform init -input=false
+      - name: Terraform Plan
+        run: |
+          cd infra/minio/module
+          terraform plan -out=plan.out -input=false
+      - name: Terraform Apply (manual)
+        if: ${{ github.event.inputs.apply == 'true' }}
+        # This uses a protected GitHub Environment 'minio-production' to require manual approval
+        environment: minio-production
+        run: |
+          cd infra/minio/module
+          terraform apply -input=false -auto-approve plan.out

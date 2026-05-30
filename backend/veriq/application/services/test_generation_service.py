@@ -231,7 +231,9 @@ def _generate_rule_based_suite(requirement: str, scenario_limit: int = 3) -> Gen
             )
         )
 
-    summary = f"Generated {len(scenarios)} scenario{'s' if len(scenarios) != 1 else ''} for {focus}."
+    summary = (
+        f"Generated {len(scenarios)} scenario{'s' if len(scenarios) != 1 else ''} for {focus}."
+    )
     return GeneratedSuite(
         requirement=requirement.strip(),
         summary=summary,

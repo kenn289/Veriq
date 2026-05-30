@@ -5,20 +5,20 @@ Usage (example):
 
 This script is intentionally small; adapt hyperparameters and dataset handling for production.
 """
+
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 
 from datasets import load_dataset
+from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
-    TrainingArguments,
     Trainer,
+    TrainingArguments,
     default_data_collator,
 )
-from peft import prepare_model_for_kbit_training, LoraConfig, get_peft_model
 
 
 def parse_args() -> argparse.Namespace:
@@ -67,7 +67,7 @@ def main() -> None:
     # Attempt to auto-detect target modules suitable for LoRA injection.
     known_targets = ["q_proj", "k_proj", "v_proj", "o_proj", "c_attn", "c_proj", "c_kv", "c_q"]
     available = set()
-    for name, module in model.named_modules():
+    for name, _module in model.named_modules():
         for t in known_targets:
             if name.endswith(t) or t in name:
                 available.add(t)
@@ -122,11 +122,16 @@ def main() -> None:
             endpoint = settings.minio_endpoint or ""
             # Strip scheme if present
             if endpoint.startswith("http://"):
-                endpoint = endpoint[len("http://"):]
+                endpoint = endpoint[len("http://") :]
             if endpoint.startswith("https://"):
-                endpoint = endpoint[len("https://"):]
+                endpoint = endpoint[len("https://") :]
 
-            client = Minio(endpoint, access_key=settings.minio_access_key, secret_key=settings.minio_secret_key, secure=False)
+            client = Minio(
+                endpoint,
+                access_key=settings.minio_access_key,
+                secret_key=settings.minio_secret_key,
+                secure=False,
+            )
 
             bucket = settings.minio_bucket or "veriq-artifacts"
             try:

@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional
-
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from veriq.api.dependencies.auth import get_current_user
@@ -15,9 +13,9 @@ from veriq.api.v1.schemas.test_case import (
     TestStepResponse,
 )
 from veriq.application.services import test_case_service
+from veriq.infrastructure.db.models import UserModel
 from veriq.infrastructure.repositories import test_case_repository as tc_repo
 from veriq.infrastructure.repositories import test_step_repository as ts_repo
-from veriq.infrastructure.db.models import UserModel
 
 router = APIRouter(prefix="/api/v1/test_cases", tags=["test_cases"])
 
@@ -64,10 +62,10 @@ def create_test_case(
             updated_at=test_case.updated_at.isoformat(),
         )
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("", response_model=list[TestCaseResponse])
@@ -205,7 +203,7 @@ def add_step(
         )
     except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/{test_case_id}/steps", response_model=list[TestStepResponse])

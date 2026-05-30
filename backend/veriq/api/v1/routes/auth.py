@@ -22,9 +22,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
     response_model=RegisterResponse,
     status_code=status.HTTP_201_CREATED,
 )
-def register(
-    payload: RegisterRequest, session: Session = Depends(get_session)
-) -> RegisterResponse:
+def register(payload: RegisterRequest, session: Session = Depends(get_session)) -> RegisterResponse:
     """Description: Register a tenant and initial admin user.
     Parameters:
         payload: Registration payload.

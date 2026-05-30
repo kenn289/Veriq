@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional
 from pydantic import BaseModel, Field
 
 
@@ -22,10 +21,10 @@ class TestResultReportRequest(BaseModel):
     test_case_id: str
     status: str = Field(..., pattern="^(passed|failed|error|skipped)$")
     duration_seconds: int = Field(0, ge=0)
-    error_message: Optional[str] = Field(None, max_length=5000)
-    error_stack_trace: Optional[str] = Field(None, max_length=50000)
-    failure_step_id: Optional[str] = None
-    failure_screenshot: Optional[str] = Field(None, max_length=500)
+    error_message: str | None = Field(None, max_length=5000)
+    error_stack_trace: str | None = Field(None, max_length=50000)
+    failure_step_id: str | None = None
+    failure_screenshot: str | None = Field(None, max_length=500)
 
 
 class TestResultResponse(BaseModel):
@@ -39,7 +38,7 @@ class TestResultResponse(BaseModel):
     test_case_id: str
     status: str
     duration_seconds: int
-    error_message: Optional[str]
+    error_message: str | None
     attempts: int
     created_at: str
 
@@ -59,8 +58,8 @@ class TestRunResponse(BaseModel):
     failed_count: int
     error_count: int
     duration_seconds: int
-    started_at: Optional[str]
-    completed_at: Optional[str]
+    started_at: str | None
+    completed_at: str | None
     created_at: str
     updated_at: str
 
@@ -80,8 +79,8 @@ class TestRunDetailResponse(BaseModel):
     failed_count: int
     error_count: int
     duration_seconds: int
-    started_at: Optional[str]
-    completed_at: Optional[str]
+    started_at: str | None
+    completed_at: str | None
     results: list[TestResultResponse]
     created_at: str
     updated_at: str

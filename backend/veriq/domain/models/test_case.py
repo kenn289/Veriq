@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass
@@ -13,10 +12,10 @@ class TestCase:
 
     name: str
     workspace_id: str
-    description: Optional[str] = None
-    slug: Optional[str] = None
+    description: str | None = None
+    slug: str | None = None
     status: str = "active"
     priority: int = 3
-    id: Optional[str] = None
-    created_at: Optional[str] = None
-    updated_at: Optional[str] = None
+    id: str | None = None
+    created_at: str | None = None
+    updated_at: str | None = None

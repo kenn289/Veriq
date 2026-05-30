@@ -6,8 +6,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from veriq.api.dependencies.db import get_session
-from veriq.infrastructure.db.base import Base
 from veriq.infrastructure.db import models  # noqa: F401
+from veriq.infrastructure.db.base import Base
 from veriq.infrastructure.db.seed import seed_roles
 from veriq.main import create_app
 
@@ -23,7 +23,6 @@ def db_session() -> Session:
         session = db_session
     """
 
-    from sqlalchemy import event
     from sqlalchemy.pool import StaticPool
 
     engine = create_engine(

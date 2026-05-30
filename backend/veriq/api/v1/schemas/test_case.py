@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional
 from pydantic import BaseModel, Field
 
 
@@ -11,7 +10,7 @@ class TestCaseCreateRequest(BaseModel):
     """
 
     name: str = Field(..., min_length=1, max_length=255)
-    description: Optional[str] = Field(None, max_length=5000)
+    description: str | None = Field(None, max_length=5000)
     priority: int = Field(3, ge=1, le=5)
 
 
@@ -22,9 +21,9 @@ class TestStepCreateRequest(BaseModel):
     """
 
     action: str = Field(..., min_length=1, max_length=100)
-    target: Optional[str] = Field(None, max_length=500)
-    value: Optional[str] = Field(None, max_length=1000)
-    description: Optional[str] = Field(None, max_length=5000)
+    target: str | None = Field(None, max_length=500)
+    value: str | None = Field(None, max_length=1000)
+    description: str | None = Field(None, max_length=5000)
 
 
 class TestStepResponse(BaseModel):
@@ -35,9 +34,9 @@ class TestStepResponse(BaseModel):
 
     id: str
     action: str
-    target: Optional[str]
-    value: Optional[str]
-    description: Optional[str]
+    target: str | None
+    value: str | None
+    description: str | None
     order: int
 
 
@@ -50,7 +49,7 @@ class TestCaseResponse(BaseModel):
     id: str
     workspace_id: str
     name: str
-    description: Optional[str]
+    description: str | None
     slug: str
     status: str
     priority: int
@@ -67,7 +66,7 @@ class TestCaseDetailResponse(BaseModel):
     id: str
     workspace_id: str
     name: str
-    description: Optional[str]
+    description: str | None
     slug: str
     status: str
     priority: int

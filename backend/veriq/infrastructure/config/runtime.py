@@ -33,8 +33,8 @@ def persist_runtime_to_env(updates: dict) -> None:
     This performs a best-effort update: existing keys are replaced, new keys
     are appended. Non-VERIQ entries are preserved.
     """
-    from pathlib import Path
     import json
+    from pathlib import Path
 
     env_map = {
         "test_generation_provider": "VERIQ_TEST_GENERATION_PROVIDER",

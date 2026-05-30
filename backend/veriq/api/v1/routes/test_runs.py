@@ -1,25 +1,21 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Optional
-
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from veriq.api.dependencies.auth import get_current_user
 from veriq.api.dependencies.db import get_session
 from veriq.api.v1.schemas.test_run import (
+    TestResultReportRequest,
+    TestResultResponse,
     TestRunCreateRequest,
     TestRunDetailResponse,
     TestRunResponse,
-    TestResultReportRequest,
-    TestResultResponse,
     TestRunSummaryResponse,
 )
 from veriq.application.services import test_run_service
-from veriq.infrastructure.repositories import test_run_repository as tr_repo
-from veriq.infrastructure.repositories import test_result_repository as trs_repo
 from veriq.infrastructure.db.models import UserModel
+from veriq.infrastructure.repositories import test_run_repository as tr_repo
 
 router = APIRouter(prefix="/api/v1/test_runs", tags=["test_runs"])
 
@@ -62,18 +58,14 @@ def create_test_run(
             failed_count=test_run.failed_count,
             error_count=test_run.error_count,
             duration_seconds=test_run.duration_seconds,
-            started_at=test_run.started_at.isoformat()
-            if test_run.started_at
-            else None,
-            completed_at=test_run.completed_at.isoformat()
-            if test_run.completed_at
-            else None,
+            started_at=test_run.started_at.isoformat() if test_run.started_at else None,
+            completed_at=test_run.completed_at.isoformat() if test_run.completed_at else None,
             created_at=test_run.created_at.isoformat(),
             updated_at=test_run.updated_at.isoformat(),
         )
     except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("", response_model=list[TestRunResponse])
@@ -155,12 +147,8 @@ def get_test_run(
         failed_count=test_run.failed_count,
         error_count=test_run.error_count,
         duration_seconds=test_run.duration_seconds,
-        started_at=test_run.started_at.isoformat()
-        if test_run.started_at
-        else None,
-        completed_at=test_run.completed_at.isoformat()
-        if test_run.completed_at
-        else None,
+        started_at=test_run.started_at.isoformat() if test_run.started_at else None,
+        completed_at=test_run.completed_at.isoformat() if test_run.completed_at else None,
         results=[
             TestResultResponse(
                 id=r.id,
@@ -230,7 +218,7 @@ def report_result(
         )
     except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/{test_run_id}/summary", response_model=TestRunSummaryResponse)
@@ -295,12 +283,8 @@ def start_run(
         failed_count=test_run.failed_count,
         error_count=test_run.error_count,
         duration_seconds=test_run.duration_seconds,
-        started_at=test_run.started_at.isoformat()
-        if test_run.started_at
-        else None,
-        completed_at=test_run.completed_at.isoformat()
-        if test_run.completed_at
-        else None,
+        started_at=test_run.started_at.isoformat() if test_run.started_at else None,
+        completed_at=test_run.completed_at.isoformat() if test_run.completed_at else None,
         created_at=test_run.created_at.isoformat(),
         updated_at=test_run.updated_at.isoformat(),
     )
@@ -346,12 +330,8 @@ def complete_run(
         failed_count=test_run.failed_count,
         error_count=test_run.error_count,
         duration_seconds=test_run.duration_seconds,
-        started_at=test_run.started_at.isoformat()
-        if test_run.started_at
-        else None,
-        completed_at=test_run.completed_at.isoformat()
-        if test_run.completed_at
-        else None,
+        started_at=test_run.started_at.isoformat() if test_run.started_at else None,
+        completed_at=test_run.completed_at.isoformat() if test_run.completed_at else None,
         created_at=test_run.created_at.isoformat(),
         updated_at=test_run.updated_at.isoformat(),
     )

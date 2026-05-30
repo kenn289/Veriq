@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass
@@ -15,11 +14,11 @@ class TestResult:
     test_case_id: str
     status: str
     duration_seconds: int = 0
-    error_message: Optional[str] = None
-    error_stack_trace: Optional[str] = None
-    failure_step_id: Optional[str] = None
-    failure_screenshot: Optional[str] = None
+    error_message: str | None = None
+    error_stack_trace: str | None = None
+    failure_step_id: str | None = None
+    failure_screenshot: str | None = None
     attempts: int = 1
-    id: Optional[str] = None
-    created_at: Optional[str] = None
-    updated_at: Optional[str] = None
+    id: str | None = None
+    created_at: str | None = None
+    updated_at: str | None = None

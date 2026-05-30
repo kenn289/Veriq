@@ -75,11 +75,7 @@ def get_workspace(session: Session, workspace_id: str) -> WorkspaceModel | None:
         workspace = get_workspace(session, workspace_id)
     """
 
-    return (
-        session.query(WorkspaceModel)
-        .filter(WorkspaceModel.id == workspace_id)
-        .one_or_none()
-    )
+    return session.query(WorkspaceModel).filter(WorkspaceModel.id == workspace_id).one_or_none()
 
 
 def get_workspace_by_slug(

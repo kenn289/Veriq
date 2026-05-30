@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from typing import Optional
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy.orm import Session
 
-from veriq.infrastructure.repositories import test_run_repository as tr_repo
+from veriq.infrastructure.db.models import TestResultModel, TestRunModel
 from veriq.infrastructure.repositories import test_result_repository as trs_repo
-from veriq.infrastructure.db.models import TestRunModel, TestResultModel
+from veriq.infrastructure.repositories import test_run_repository as tr_repo
 
 
 def create_test_run(
@@ -34,7 +33,7 @@ def create_test_run(
     )
 
 
-def start_test_run(session: Session, test_run_id: str) -> Optional[TestRunModel]:
+def start_test_run(session: Session, test_run_id: str) -> TestRunModel | None:
     """Description: Start executing a test run.
     Parameters:
         session: Database session.
@@ -45,7 +44,7 @@ def start_test_run(session: Session, test_run_id: str) -> Optional[TestRunModel]
         run = start_test_run(session, test_run_id)
     """
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     return tr_repo.update_test_run_status(
         session=session,
         test_run_id=test_run_id,
@@ -58,7 +57,7 @@ def complete_test_run(
     session: Session,
     test_run_id: str,
     duration_seconds: int,
-) -> Optional[TestRunModel]:
+) -> TestRunModel | None:
     """Description: Mark a test run as completed.
     Parameters:
         session: Database session.
@@ -73,7 +72,7 @@ def complete_test_run(
     # Get summary of results
     summary = trs_repo.get_run_summary(session, test_run_id)
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     return tr_repo.update_test_run_status(
         session=session,
         test_run_id=test_run_id,
@@ -93,10 +92,10 @@ def report_test_result(
     test_case_id: str,
     status: str,
     duration_seconds: int = 0,
-    error_message: Optional[str] = None,
-    error_stack_trace: Optional[str] = None,
-    failure_step_id: Optional[str] = None,
-    failure_screenshot: Optional[str] = None,
+    error_message: str | None = None,
+    error_stack_trace: str | None = None,
+    failure_step_id: str | None = None,
+    failure_screenshot: str | None = None,
     attempts: int = 1,
 ) -> TestResultModel:
     """Description: Report a test result for a test case in a run.
@@ -147,9 +146,7 @@ def get_run_summary(session: Session, test_run_id: str) -> dict:
     return trs_repo.get_run_summary(session, test_run_id)
 
 
-def list_test_runs_by_workspace(
-    session: Session, workspace_id: str
-) -> list[TestRunModel]:
+def list_test_runs_by_workspace(session: Session, workspace_id: str) -> list[TestRunModel]:
     """Description: List all test runs in a workspace.
     Parameters:
         session: Database session.
@@ -165,7 +162,7 @@ def list_test_runs_by_workspace(
 
 def get_test_run_with_results(
     session: Session, test_run_id: str
-) -> Optional[tuple[TestRunModel, list[TestResultModel]]]:
+) -> tuple[TestRunModel, list[TestResultModel]] | None:
     """Description: Get test run with all its results.
     Parameters:
         session: Database session.

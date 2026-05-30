@@ -38,11 +38,7 @@ def list_organizations(session: Session, tenant_id: str) -> list[OrganizationMod
         orgs = list_organizations(session, tenant_id)
     """
 
-    return (
-        session.query(OrganizationModel)
-        .filter(OrganizationModel.tenant_id == tenant_id)
-        .all()
-    )
+    return session.query(OrganizationModel).filter(OrganizationModel.tenant_id == tenant_id).all()
 
 
 def get_organization(session: Session, organization_id: str) -> OrganizationModel | None:

@@ -7,15 +7,21 @@ from veriq.domain.models.membership import WorkspaceMembership
 from veriq.domain.models.organization import Organization
 from veriq.domain.models.project import Project
 from veriq.domain.models.workspace import Workspace
-from veriq.infrastructure.db.models import OrganizationModel, UserModel, WorkspaceModel
 from veriq.infrastructure.repositories import (
     organization_repository as org_repo,
+)
+from veriq.infrastructure.repositories import (
     test_case_repository as tc_repo,
+)
+from veriq.infrastructure.repositories import (
     test_result_repository as tr_result_repo,
+)
+from veriq.infrastructure.repositories import (
     test_run_repository as tr_repo,
+)
+from veriq.infrastructure.repositories import (
     test_step_repository as ts_repo,
 )
-from veriq.infrastructure.security.passwords import hash_password
 
 
 def _register_admin_and_get_headers(client: TestClient) -> tuple[dict[str, str], str, str]:

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional
-
 from sqlalchemy.orm import Session
 
 from veriq.infrastructure.db.models import TestStepModel
@@ -12,9 +10,9 @@ def create_test_step(
     test_case_id: str,
     action: str,
     order: int,
-    target: Optional[str] = None,
-    value: Optional[str] = None,
-    description: Optional[str] = None,
+    target: str | None = None,
+    value: str | None = None,
+    description: str | None = None,
 ) -> TestStepModel:
     """Description: Create a new test step.
     Parameters:
@@ -44,7 +42,7 @@ def create_test_step(
     return step
 
 
-def get_test_step(session: Session, step_id: str) -> Optional[TestStepModel]:
+def get_test_step(session: Session, step_id: str) -> TestStepModel | None:
     """Description: Get a test step by ID.
     Parameters:
         session: Database session.
@@ -80,12 +78,12 @@ def list_test_steps(session: Session, test_case_id: str) -> list[TestStepModel]:
 def update_test_step(
     session: Session,
     step_id: str,
-    action: Optional[str] = None,
-    order: Optional[int] = None,
-    target: Optional[str] = None,
-    value: Optional[str] = None,
-    description: Optional[str] = None,
-) -> Optional[TestStepModel]:
+    action: str | None = None,
+    order: int | None = None,
+    target: str | None = None,
+    value: str | None = None,
+    description: str | None = None,
+) -> TestStepModel | None:
     """Description: Update a test step.
     Parameters:
         session: Database session.

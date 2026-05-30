@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional
-
 from sqlalchemy.orm import Session
 
 from veriq.infrastructure.db.models import TestCaseModel
@@ -12,7 +10,7 @@ def create_test_case(
     workspace_id: str,
     name: str,
     slug: str,
-    description: Optional[str] = None,
+    description: str | None = None,
     status: str = "active",
     priority: int = 3,
 ) -> TestCaseModel:
@@ -44,7 +42,7 @@ def create_test_case(
     return test_case
 
 
-def get_test_case(session: Session, test_case_id: str) -> Optional[TestCaseModel]:
+def get_test_case(session: Session, test_case_id: str) -> TestCaseModel | None:
     """Description: Get a test case by ID.
     Parameters:
         session: Database session.
@@ -58,9 +56,7 @@ def get_test_case(session: Session, test_case_id: str) -> Optional[TestCaseModel
     return session.query(TestCaseModel).filter(TestCaseModel.id == test_case_id).one_or_none()
 
 
-def get_test_case_by_slug(
-    session: Session, workspace_id: str, slug: str
-) -> Optional[TestCaseModel]:
+def get_test_case_by_slug(session: Session, workspace_id: str, slug: str) -> TestCaseModel | None:
     """Description: Get a test case by workspace and slug.
     Parameters:
         session: Database session.
@@ -101,11 +97,11 @@ def list_test_cases(session: Session, workspace_id: str) -> list[TestCaseModel]:
 def update_test_case(
     session: Session,
     test_case_id: str,
-    name: Optional[str] = None,
-    description: Optional[str] = None,
-    status: Optional[str] = None,
-    priority: Optional[int] = None,
-) -> Optional[TestCaseModel]:
+    name: str | None = None,
+    description: str | None = None,
+    status: str | None = None,
+    priority: int | None = None,
+) -> TestCaseModel | None:
     """Description: Update a test case.
     Parameters:
         session: Database session.

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional
-
 from sqlalchemy.orm import Session
 
 from veriq.infrastructure.db.models import TestResultModel
@@ -13,10 +11,10 @@ def create_test_result(
     test_case_id: str,
     status: str,
     duration_seconds: int = 0,
-    error_message: Optional[str] = None,
-    error_stack_trace: Optional[str] = None,
-    failure_step_id: Optional[str] = None,
-    failure_screenshot: Optional[str] = None,
+    error_message: str | None = None,
+    error_stack_trace: str | None = None,
+    failure_step_id: str | None = None,
+    failure_screenshot: str | None = None,
     attempts: int = 1,
 ) -> TestResultModel:
     """Description: Create a new test result.
@@ -53,7 +51,7 @@ def create_test_result(
     return result
 
 
-def get_test_result(session: Session, result_id: str) -> Optional[TestResultModel]:
+def get_test_result(session: Session, result_id: str) -> TestResultModel | None:
     """Description: Get a test result by ID.
     Parameters:
         session: Database session.

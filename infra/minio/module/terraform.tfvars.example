@@ -1,0 +1,17 @@
+# Example terraform variables for the MinIO module
+kubeconfig_path = "~/.kube/config"
+release_name = "minio"
+replica_count = 4
+persistence_size = "200Gi"
+namespace = "minio"
+
+# TLS / ACME example (DNS-01 using Cloudflare)
+acme_enabled = true
+acme_email = "ops@example.com"
+acme_dns_provider = "cloudflare"
+acme_dns_secret = "cloudflare-api-token"
+acme_dns_secret_namespace = "minio"
+acme_dns_zone = "example.com"
+
+# If you prefer self-signed during testing
+# acme_enabled = false

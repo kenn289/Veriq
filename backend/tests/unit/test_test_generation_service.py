@@ -9,10 +9,14 @@ from veriq.infrastructure.ai.test_generation_provider import (
     RuleBasedTestGenerationProvider,
     get_test_generation_provider,
 )
+from veriq.infrastructure.config.runtime import set_runtime_config
+from veriq.infrastructure.config.settings import get_settings
 
 
 def test_build_test_generation_prompt_includes_guidance() -> None:
-    prompt = build_test_generation_prompt("Users can log in with email and password", scenario_limit=2)
+    prompt = build_test_generation_prompt(
+        "Users can log in with email and password", scenario_limit=2
+    )
 
     assert "senior QA architect" in prompt
     assert "Requirement: Users can log in with email and password" in prompt
@@ -32,7 +36,9 @@ def test_generate_test_suite_for_login_requirement() -> None:
 
 
 def test_generate_test_suite_defaults_to_generic_workflow() -> None:
-    suite = generate_test_suite("The dashboard should support a saved view workflow", scenario_limit=2)
+    suite = generate_test_suite(
+        "The dashboard should support a saved view workflow", scenario_limit=2
+    )
 
     assert suite.focus == "generic workflow"
     assert len(suite.scenarios) == 2
@@ -50,7 +56,14 @@ def test_rule_based_engine_uses_same_prompt_and_generation() -> None:
     assert len(suite.scenarios) == 2
 
 
-def test_rule_based_provider_delegates_to_generator() -> None:
+def test_rule_based_provider_delegates_to_generator(monkeypatch) -> None:
+    set_runtime_config(
+        test_generation_provider=None,
+        llm_model_name=None,
+        llm_adapter_dir=None,
+    )
+    monkeypatch.setenv("VERIQ_TEST_GENERATION_PROVIDER", "rule")
+    get_settings.cache_clear()
     provider = get_test_generation_provider()
 
     assert isinstance(provider, RuleBasedTestGenerationProvider)

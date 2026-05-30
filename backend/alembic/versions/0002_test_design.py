@@ -11,7 +11,6 @@ from __future__ import annotations
 from alembic import op
 import sqlalchemy as sa
 
-
 revision = "0002_test_design"
 down_revision = "0001_auth_core"
 branch_labels = None
@@ -131,9 +130,7 @@ def upgrade() -> None:
         ),
         sa.ForeignKeyConstraint(["test_run_id"], ["test_runs.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["test_case_id"], ["test_cases.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(
-            ["failure_step_id"], ["test_steps.id"], ondelete="SET NULL"
-        ),
+        sa.ForeignKeyConstraint(["failure_step_id"], ["test_steps.id"], ondelete="SET NULL"),
         sa.PrimaryKeyConstraint("id"),
     )
 
