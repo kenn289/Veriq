@@ -62,10 +62,10 @@ def create_test_case(
             updated_at=test_case.updated_at.isoformat(),
         )
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("", response_model=list[TestCaseResponse])
@@ -203,7 +203,7 @@ def add_step(
         )
     except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/{test_case_id}/steps", response_model=list[TestStepResponse])

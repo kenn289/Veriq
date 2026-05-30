@@ -69,7 +69,7 @@ def create_test_run(
         )
     except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("", response_model=list[TestRunResponse])
@@ -226,7 +226,7 @@ def report_result(
         )
     except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/{test_run_id}/summary", response_model=TestRunSummaryResponse)
