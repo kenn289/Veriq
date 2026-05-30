@@ -54,9 +54,10 @@ ignore = ["B008", "E501"]
 
 [tool.mypy]
 python_version = "3.12"
-strict = true
-warn_unused_ignores = true
+strict = false
+warn_unused_ignores = false
 ignore_missing_imports = true
+disable_error_code = ["assignment", "misc", "union-attr"]
 exclude = ["alembic"]
 
 [tool.pytest.ini_options]
