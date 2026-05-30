@@ -5,6 +5,8 @@ from veriq.application.services.test_generation_service import (
     generate_test_suite,
     get_test_generation_engine,
 )
+from veriq.infrastructure.config.runtime import set_runtime_config
+from veriq.infrastructure.config.settings import get_settings
 from veriq.infrastructure.ai.test_generation_provider import (
     RuleBasedTestGenerationProvider,
     get_test_generation_provider,
@@ -54,7 +56,14 @@ def test_rule_based_engine_uses_same_prompt_and_generation() -> None:
     assert len(suite.scenarios) == 2
 
 
-def test_rule_based_provider_delegates_to_generator() -> None:
+def test_rule_based_provider_delegates_to_generator(monkeypatch) -> None:
+    set_runtime_config(
+        test_generation_provider=None,
+        llm_model_name=None,
+        llm_adapter_dir=None,
+    )
+    monkeypatch.setenv("VERIQ_TEST_GENERATION_PROVIDER", "rule")
+    get_settings.cache_clear()
     provider = get_test_generation_provider()
 
     assert isinstance(provider, RuleBasedTestGenerationProvider)
