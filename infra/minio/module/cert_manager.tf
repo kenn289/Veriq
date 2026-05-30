@@ -106,7 +106,7 @@ resource "kubernetes_secret" "acme_route53_secret" {
 
   metadata {
     name      = "route53-credentials"
-    namespace = var.acme_dns_secret_namespace != "" ? var.acme_dns_secret_namespace : var.namespace
+    namespace = var.acme_dns_secret_namespace != "" ? var.acme_dns_secret_namespace : "cert-manager"
   }
 
   string_data = {
