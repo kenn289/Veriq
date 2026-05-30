@@ -1,25 +1,21 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Optional
-
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from veriq.api.dependencies.auth import get_current_user
 from veriq.api.dependencies.db import get_session
 from veriq.api.v1.schemas.test_run import (
+    TestResultReportRequest,
+    TestResultResponse,
     TestRunCreateRequest,
     TestRunDetailResponse,
     TestRunResponse,
-    TestResultReportRequest,
-    TestResultResponse,
     TestRunSummaryResponse,
 )
 from veriq.application.services import test_run_service
-from veriq.infrastructure.repositories import test_run_repository as tr_repo
-from veriq.infrastructure.repositories import test_result_repository as trs_repo
 from veriq.infrastructure.db.models import UserModel
+from veriq.infrastructure.repositories import test_run_repository as tr_repo
 
 router = APIRouter(prefix="/api/v1/test_runs", tags=["test_runs"])
 

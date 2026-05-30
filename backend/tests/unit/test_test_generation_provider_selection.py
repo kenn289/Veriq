@@ -1,4 +1,3 @@
-import os
 
 from veriq.infrastructure.ai import test_generation_provider as provider_mod
 from veriq.infrastructure.ai.test_generation_provider import (

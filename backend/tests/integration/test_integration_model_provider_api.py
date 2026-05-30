@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
-from veriq.main import app
 from veriq.infrastructure.ai import test_generation_provider as provider_mod
+from veriq.main import app
 
 
 def test_api_uses_model_provider(monkeypatch, tmp_path):

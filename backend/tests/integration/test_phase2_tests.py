@@ -3,9 +3,7 @@ from __future__ import annotations
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from veriq.api.dependencies.db import get_session
 from veriq.infrastructure.db.models import UserModel, WorkspaceModel
-from veriq.main import create_app
 
 
 def test_create_test_case(db_session: Session, client: TestClient) -> None:
@@ -20,8 +18,7 @@ def test_create_test_case(db_session: Session, client: TestClient) -> None:
     """
 
     # Create test data
-    from veriq.infrastructure.db.models import TenantModel, UserModel, WorkspaceModel
-    from veriq.infrastructure.repositories import user_repository, workspace_repository
+    from veriq.infrastructure.db.models import TenantModel
     from veriq.infrastructure.security.passwords import hash_password
 
     tenant = TenantModel(name="Test Tenant", slug="test-tenant")
@@ -66,9 +63,8 @@ def test_test_case_lifecycle(db_session: Session) -> None:
         test_test_case_lifecycle(db_session)
     """
 
-    from veriq.infrastructure.repositories import test_case_repository as tc_repo
-    from veriq.infrastructure.repositories import test_step_repository as ts_repo
     from veriq.application.services import test_case_service
+    from veriq.infrastructure.repositories import test_step_repository as ts_repo
 
     workspace_id = "ws123"
 
@@ -131,8 +127,7 @@ def test_test_run_lifecycle(db_session: Session) -> None:
         test_test_run_lifecycle(db_session)
     """
 
-    from veriq.application.services import test_run_service, test_case_service
-    from veriq.infrastructure.repositories import test_result_repository as trs_repo
+    from veriq.application.services import test_case_service, test_run_service
 
     workspace_id = "ws123"
 

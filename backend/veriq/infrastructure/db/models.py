@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, UniqueConstraint
@@ -19,7 +19,7 @@ def _utcnow() -> datetime:
         timestamp = _utcnow()
     """
 
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class TimestampMixin:

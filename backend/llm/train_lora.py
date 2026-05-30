@@ -8,17 +8,16 @@ This script is intentionally small; adapt hyperparameters and dataset handling f
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 
 from datasets import load_dataset
+from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
-    TrainingArguments,
     Trainer,
+    TrainingArguments,
     default_data_collator,
 )
-from peft import prepare_model_for_kbit_training, LoraConfig, get_peft_model
 
 
 def parse_args() -> argparse.Namespace:

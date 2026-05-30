@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from veriq.domain.models.version import VersionInfo
 from veriq.infrastructure.config.settings import get_settings
@@ -16,7 +16,7 @@ def get_health_status() -> dict[str, str]:
         payload = get_health_status()
     """
 
-    timestamp = datetime.now(timezone.utc).isoformat()
+    timestamp = datetime.now(UTC).isoformat()
     return {"status": "ok", "timestamp": timestamp}
 
 

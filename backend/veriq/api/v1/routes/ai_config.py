@@ -3,8 +3,11 @@ from __future__ import annotations
 from fastapi import APIRouter, Body
 from pydantic import BaseModel
 
-from veriq.infrastructure.config.runtime import get_runtime_config, set_runtime_config
-from veriq.infrastructure.config.runtime import persist_runtime_to_env
+from veriq.infrastructure.config.runtime import (
+    get_runtime_config,
+    persist_runtime_to_env,
+    set_runtime_config,
+)
 
 router = APIRouter(prefix="/ai", tags=["ai-config"])
 

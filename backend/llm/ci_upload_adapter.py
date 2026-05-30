@@ -11,13 +11,12 @@ from __future__ import annotations
 
 import argparse
 import os
-from datetime import datetime, timezone, timedelta
-from pathlib import Path
 import sys
+from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
 try:
     from minio import Minio
-    from minio.error import S3Error
 except Exception:
     print("minio package not available; please install minio for CI upload step.")
     sys.exit(0)
@@ -39,7 +38,7 @@ def upload_dir(client: Minio, bucket: str, adapter_dir: Path) -> None:
 
 
 def cleanup_old_objects(client: Minio, bucket: str, prefix: str, days: int) -> None:
-    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    cutoff = datetime.now(UTC) - timedelta(days=days)
     print(f"Cleaning up objects in {bucket} with prefix {prefix} older than {days} days (cutoff={cutoff})")
     try:
         objects = client.list_objects(bucket, prefix=prefix, recursive=True)

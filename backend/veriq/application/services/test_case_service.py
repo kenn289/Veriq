@@ -1,20 +1,18 @@
 from __future__ import annotations
 
-from typing import Optional
-
 from sqlalchemy.orm import Session
 
 from veriq.application.utils.slug import slugify
+from veriq.infrastructure.db.models import TestCaseModel, TestStepModel
 from veriq.infrastructure.repositories import test_case_repository as tc_repo
 from veriq.infrastructure.repositories import test_step_repository as ts_repo
-from veriq.infrastructure.db.models import TestCaseModel, TestStepModel
 
 
 def create_test_case(
     session: Session,
     workspace_id: str,
     name: str,
-    description: Optional[str] = None,
+    description: str | None = None,
     priority: int = 3,
 ) -> TestCaseModel:
     """Description: Create a new test case in a workspace.
@@ -53,9 +51,9 @@ def add_step_to_test_case(
     session: Session,
     test_case_id: str,
     action: str,
-    target: Optional[str] = None,
-    value: Optional[str] = None,
-    description: Optional[str] = None,
+    target: str | None = None,
+    value: str | None = None,
+    description: str | None = None,
 ) -> TestStepModel:
     """Description: Add a step to a test case.
     Parameters:
@@ -104,7 +102,7 @@ def list_test_cases_by_workspace(
 
 def get_test_case_details(
     session: Session, test_case_id: str
-) -> Optional[tuple[TestCaseModel, list[TestStepModel]]]:
+) -> tuple[TestCaseModel, list[TestStepModel]] | None:
     """Description: Get test case with all its steps.
     Parameters:
         session: Database session.

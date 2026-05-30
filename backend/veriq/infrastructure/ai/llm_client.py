@@ -5,8 +5,8 @@ from typing import Any
 
 try:
     # Optional heavy deps; import lazily at runtime
-    from transformers import AutoModelForCausalLM, AutoTokenizer
     import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
 except Exception:  # pragma: no cover - optional import
     AutoModelForCausalLM = None  # type: ignore
     AutoTokenizer = None  # type: ignore

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional
-
 from sqlalchemy.orm import Session
 
 from veriq.infrastructure.db.models import TestRunModel
@@ -35,7 +33,7 @@ def create_test_run(
     return test_run
 
 
-def get_test_run(session: Session, test_run_id: str) -> Optional[TestRunModel]:
+def get_test_run(session: Session, test_run_id: str) -> TestRunModel | None:
     """Description: Get a test run by ID.
     Parameters:
         session: Database session.
@@ -77,9 +75,9 @@ def update_test_run_status(
     failed_count: int = 0,
     error_count: int = 0,
     duration_seconds: int = 0,
-    started_at: Optional[object] = None,
-    completed_at: Optional[object] = None,
-) -> Optional[TestRunModel]:
+    started_at: object | None = None,
+    completed_at: object | None = None,
+) -> TestRunModel | None:
     """Description: Update test run status and counts.
     Parameters:
         session: Database session.

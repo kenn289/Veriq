@@ -1,4 +1,5 @@
 import os
+
 from fastapi.testclient import TestClient
 
 os.environ["VERIQ_TEST_GENERATION_PROVIDER"] = "model"

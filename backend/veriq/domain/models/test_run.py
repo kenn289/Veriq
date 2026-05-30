@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass
@@ -19,8 +18,8 @@ class TestRun:
     failed_count: int = 0
     error_count: int = 0
     duration_seconds: int = 0
-    id: Optional[str] = None
-    started_at: Optional[str] = None
-    completed_at: Optional[str] = None
-    created_at: Optional[str] = None
-    updated_at: Optional[str] = None
+    id: str | None = None
+    started_at: str | None = None
+    completed_at: str | None = None
+    created_at: str | None = None
+    updated_at: str | None = None

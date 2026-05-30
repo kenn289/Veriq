@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from sqlalchemy.orm import Session
 
 from veriq.application.utils.slug import slugify
+from veriq.infrastructure.config.settings import get_settings
 from veriq.infrastructure.repositories import (
     membership_repository,
     organization_repository,
@@ -13,7 +14,6 @@ from veriq.infrastructure.repositories import (
     user_repository,
     workspace_repository,
 )
-from veriq.infrastructure.config.settings import get_settings
 from veriq.infrastructure.security.jwt import create_access_token
 from veriq.infrastructure.security.passwords import hash_password, verify_password
 
