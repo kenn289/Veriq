@@ -66,7 +66,7 @@ def main() -> None:
     # Attempt to auto-detect target modules suitable for LoRA injection.
     known_targets = ["q_proj", "k_proj", "v_proj", "o_proj", "c_attn", "c_proj", "c_kv", "c_q"]
     available = set()
-    for name, module in model.named_modules():
+    for name, _module in model.named_modules():
         for t in known_targets:
             if name.endswith(t) or t in name:
                 available.add(t)
