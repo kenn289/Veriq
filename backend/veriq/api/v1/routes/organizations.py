@@ -40,10 +40,7 @@ def get_organizations(
     """
 
     organizations = list_organizations(session, user.tenant_id)
-    return [
-        OrganizationResponse(id=org.id, name=org.name, slug=org.slug)
-        for org in organizations
-    ]
+    return [OrganizationResponse(id=org.id, name=org.name, slug=org.slug) for org in organizations]
 
 
 @router.post(
@@ -79,9 +76,7 @@ def create_org(
     """
 
     resolved_slug = payload.slug or slugify(payload.name)
-    if organization_repository.get_organization_by_slug(
-        session, user.tenant_id, resolved_slug
-    ):
+    if organization_repository.get_organization_by_slug(session, user.tenant_id, resolved_slug):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Organization slug exists")
 
     organization = create_organization(session, user.tenant_id, payload.name, resolved_slug)

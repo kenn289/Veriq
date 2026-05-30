@@ -33,9 +33,7 @@ def create_test_case(
     # Check if slug already exists in workspace
     existing = tc_repo.get_test_case_by_slug(session, workspace_id, slug)
     if existing is not None:
-        raise ValueError(
-            f"Test case with slug '{slug}' already exists in this workspace"
-        )
+        raise ValueError(f"Test case with slug '{slug}' already exists in this workspace")
 
     return tc_repo.create_test_case(
         session=session,
@@ -84,9 +82,7 @@ def add_step_to_test_case(
     )
 
 
-def list_test_cases_by_workspace(
-    session: Session, workspace_id: str
-) -> list[TestCaseModel]:
+def list_test_cases_by_workspace(session: Session, workspace_id: str) -> list[TestCaseModel]:
     """Description: List all test cases in a workspace.
     Parameters:
         session: Database session.

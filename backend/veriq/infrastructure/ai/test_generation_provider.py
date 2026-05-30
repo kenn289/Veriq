@@ -16,11 +16,9 @@ class TestGenerationProvider(Protocol):
         provider: TestGenerationProvider = get_test_generation_provider()
     """
 
-    def build_prompt(self, requirement: str, scenario_limit: int = 3) -> str:
-        ...
+    def build_prompt(self, requirement: str, scenario_limit: int = 3) -> str: ...
 
-    def generate_suite(self, requirement: str, scenario_limit: int = 3) -> GeneratedSuite:
-        ...
+    def generate_suite(self, requirement: str, scenario_limit: int = 3) -> GeneratedSuite: ...
 
 
 @dataclass(frozen=True)
@@ -106,8 +104,7 @@ class LLMClient(Protocol):
     `do_sample`, `temperature`, `top_k`, `top_p`, and `max_new_tokens`.
     """
 
-    def generate(self, prompt: str, **generation_options) -> str:
-        ...
+    def generate(self, prompt: str, **generation_options) -> str: ...
 
 
 @dataclass
@@ -134,7 +131,9 @@ class ModelTestGenerationProvider:
     def build_prompt(self, requirement: str, scenario_limit: int = 3) -> str:
         return build_test_generation_prompt(requirement, scenario_limit)
 
-    def generate_suite(self, requirement: str, scenario_limit: int = 3, **generation_options) -> GeneratedSuite:
+    def generate_suite(
+        self, requirement: str, scenario_limit: int = 3, **generation_options
+    ) -> GeneratedSuite:
         prompt = self.build_prompt(requirement, scenario_limit)
 
         # If a real LLM client is provided, call it and attempt to use the
@@ -149,7 +148,11 @@ class ModelTestGenerationProvider:
 
         # Track metadata (non-blocking; None when unknown)
         self.metadata = GenerationMetadata(
-            model=(getattr(self.client, "__class__", None).__name__ if self.client is not None else "local-deterministic"),
+            model=(
+                getattr(self.client, "__class__", None).__name__
+                if self.client is not None
+                else "local-deterministic"
+            ),
             cost=0.0,
             raw_response_excerpt=(raw[:200] if raw else None),
         )

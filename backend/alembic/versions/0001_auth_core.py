@@ -75,9 +75,7 @@ def upgrade() -> None:
         sa.Column("slug", sa.String(length=200), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
-        sa.UniqueConstraint(
-            "workspace_id", "slug", name="uq_project_workspace_slug"
-        ),
+        sa.UniqueConstraint("workspace_id", "slug", name="uq_project_workspace_slug"),
     )
 
     op.create_table(
@@ -92,9 +90,7 @@ def upgrade() -> None:
         sa.Column("email", sa.String(length=320), nullable=False),
         sa.Column("full_name", sa.String(length=200), nullable=False),
         sa.Column("password_hash", sa.Text(), nullable=False),
-        sa.Column(
-            "is_active", sa.Boolean(), nullable=False, server_default=sa.true()
-        ),
+        sa.Column("is_active", sa.Boolean(), nullable=False, server_default=sa.true()),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.UniqueConstraint("tenant_id", "email", name="uq_user_tenant_email"),

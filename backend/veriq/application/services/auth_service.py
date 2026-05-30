@@ -105,9 +105,7 @@ def register_tenant_admin(
     )
 
 
-def authenticate_user(
-    session: Session, tenant_slug: str, email: str, password: str
-) -> AuthResult:
+def authenticate_user(session: Session, tenant_slug: str, email: str, password: str) -> AuthResult:
     """Description: Authenticate a user and return access token data.
     Parameters:
         session: Database session.

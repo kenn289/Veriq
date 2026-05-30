@@ -5,6 +5,7 @@ Usage (example):
 
 This script is intentionally small; adapt hyperparameters and dataset handling for production.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -121,11 +122,16 @@ def main() -> None:
             endpoint = settings.minio_endpoint or ""
             # Strip scheme if present
             if endpoint.startswith("http://"):
-                endpoint = endpoint[len("http://"):]
+                endpoint = endpoint[len("http://") :]
             if endpoint.startswith("https://"):
-                endpoint = endpoint[len("https://"):]
+                endpoint = endpoint[len("https://") :]
 
-            client = Minio(endpoint, access_key=settings.minio_access_key, secret_key=settings.minio_secret_key, secure=False)
+            client = Minio(
+                endpoint,
+                access_key=settings.minio_access_key,
+                secret_key=settings.minio_secret_key,
+                secure=False,
+            )
 
             bucket = settings.minio_bucket or "veriq-artifacts"
             try:

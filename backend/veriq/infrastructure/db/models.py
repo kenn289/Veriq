@@ -45,9 +45,7 @@ class TenantModel(TimestampMixin, Base):
 
     __tablename__ = "tenants"
 
-    id: Mapped[str] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid4())
-    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     slug: Mapped[str] = mapped_column(String(200), nullable=False, unique=True)
 
@@ -66,12 +64,8 @@ class OrganizationModel(TimestampMixin, Base):
     __tablename__ = "organizations"
     __table_args__ = (UniqueConstraint("tenant_id", "slug", name="uq_org_tenant_slug"),)
 
-    id: Mapped[str] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid4())
-    )
-    tenant_id: Mapped[str] = mapped_column(
-        String(36), ForeignKey("tenants.id"), nullable=False
-    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    tenant_id: Mapped[str] = mapped_column(String(36), ForeignKey("tenants.id"), nullable=False)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     slug: Mapped[str] = mapped_column(String(200), nullable=False)
 
@@ -88,13 +82,9 @@ class WorkspaceModel(TimestampMixin, Base):
     """
 
     __tablename__ = "workspaces"
-    __table_args__ = (
-        UniqueConstraint("organization_id", "slug", name="uq_workspace_org_slug"),
-    )
+    __table_args__ = (UniqueConstraint("organization_id", "slug", name="uq_workspace_org_slug"),)
 
-    id: Mapped[str] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid4())
-    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     organization_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("organizations.id"), nullable=False
     )
@@ -123,13 +113,9 @@ class ProjectModel(TimestampMixin, Base):
     """
 
     __tablename__ = "projects"
-    __table_args__ = (
-        UniqueConstraint("workspace_id", "slug", name="uq_project_workspace_slug"),
-    )
+    __table_args__ = (UniqueConstraint("workspace_id", "slug", name="uq_project_workspace_slug"),)
 
-    id: Mapped[str] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid4())
-    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     workspace_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("workspaces.id"), nullable=False
     )
@@ -148,12 +134,8 @@ class UserModel(TimestampMixin, Base):
     __tablename__ = "users"
     __table_args__ = (UniqueConstraint("tenant_id", "email", name="uq_user_tenant_email"),)
 
-    id: Mapped[str] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid4())
-    )
-    tenant_id: Mapped[str] = mapped_column(
-        String(36), ForeignKey("tenants.id"), nullable=False
-    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    tenant_id: Mapped[str] = mapped_column(String(36), ForeignKey("tenants.id"), nullable=False)
     email: Mapped[str] = mapped_column(String(320), nullable=False, index=True)
     full_name: Mapped[str] = mapped_column(String(200), nullable=False)
     password_hash: Mapped[str] = mapped_column(Text, nullable=False)
@@ -173,9 +155,7 @@ class RoleModel(Base):
 
     __tablename__ = "roles"
 
-    id: Mapped[str] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid4())
-    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     name: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
     description: Mapped[str] = mapped_column(String(255), nullable=False)
 
@@ -189,22 +169,14 @@ class WorkspaceMembershipModel(Base):
     """
 
     __tablename__ = "workspace_memberships"
-    __table_args__ = (
-        UniqueConstraint("workspace_id", "user_id", name="uq_workspace_user"),
-    )
+    __table_args__ = (UniqueConstraint("workspace_id", "user_id", name="uq_workspace_user"),)
 
-    id: Mapped[str] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid4())
-    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     workspace_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("workspaces.id"), nullable=False
     )
-    user_id: Mapped[str] = mapped_column(
-        String(36), ForeignKey("users.id"), nullable=False
-    )
-    role_id: Mapped[str] = mapped_column(
-        String(36), ForeignKey("roles.id"), nullable=False
-    )
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), nullable=False)
+    role_id: Mapped[str] = mapped_column(String(36), ForeignKey("roles.id"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, nullable=False
     )
@@ -221,13 +193,9 @@ class TestCaseModel(TimestampMixin, Base):
     """
 
     __tablename__ = "test_cases"
-    __table_args__ = (
-        UniqueConstraint("workspace_id", "slug", name="uq_test_case_workspace_slug"),
-    )
+    __table_args__ = (UniqueConstraint("workspace_id", "slug", name="uq_test_case_workspace_slug"),)
 
-    id: Mapped[str] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid4())
-    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     workspace_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("workspaces.id"), nullable=False
     )
@@ -254,9 +222,7 @@ class TestStepModel(TimestampMixin, Base):
 
     __tablename__ = "test_steps"
 
-    id: Mapped[str] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid4())
-    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     test_case_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("test_cases.id"), nullable=False
     )
@@ -278,9 +244,7 @@ class TestRunModel(TimestampMixin, Base):
 
     __tablename__ = "test_runs"
 
-    id: Mapped[str] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid4())
-    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     workspace_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("workspaces.id"), nullable=False
     )
@@ -291,12 +255,8 @@ class TestRunModel(TimestampMixin, Base):
     failed_count: Mapped[int] = mapped_column(default=0, nullable=False)
     error_count: Mapped[int] = mapped_column(default=0, nullable=False)
     duration_seconds: Mapped[int] = mapped_column(default=0, nullable=False)
-    started_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
-    completed_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     workspace: Mapped[WorkspaceModel] = relationship(back_populates="test_runs")
     results: Mapped[list[TestResultModel]] = relationship(
@@ -312,12 +272,8 @@ class TestResultModel(TimestampMixin, Base):
 
     __tablename__ = "test_results"
 
-    id: Mapped[str] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid4())
-    )
-    test_run_id: Mapped[str] = mapped_column(
-        String(36), ForeignKey("test_runs.id"), nullable=False
-    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    test_run_id: Mapped[str] = mapped_column(String(36), ForeignKey("test_runs.id"), nullable=False)
     test_case_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("test_cases.id"), nullable=False
     )

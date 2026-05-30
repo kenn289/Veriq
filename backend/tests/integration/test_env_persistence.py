@@ -12,7 +12,10 @@ def test_env_persistence_and_get(monkeypatch, tmp_path):
     client = TestClient(app)
 
     # POST to update runtime config and persist to .env
-    r = client.post("/api/v1/ai/config", json={"test_generation_provider": "model", "llm_model_name": "distilgpt2"})
+    r = client.post(
+        "/api/v1/ai/config",
+        json={"test_generation_provider": "model", "llm_model_name": "distilgpt2"},
+    )
     assert r.status_code == 200
 
     env_path = tmp_path / ".env"

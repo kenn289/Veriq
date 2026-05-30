@@ -34,7 +34,8 @@ def get_config() -> RuntimeConfigResponse:
 
     settings = get_settings()
     return RuntimeConfigResponse(
-        test_generation_provider=runtime.test_generation_provider or settings.test_generation_provider,
+        test_generation_provider=runtime.test_generation_provider
+        or settings.test_generation_provider,
         llm_model_name=runtime.llm_model_name or settings.llm_model_name,
         llm_adapter_dir=runtime.llm_adapter_dir or settings.llm_adapter_dir,
         generation_defaults=runtime.generation_defaults or settings.generation_defaults,

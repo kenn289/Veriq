@@ -58,12 +58,8 @@ def create_test_run(
             failed_count=test_run.failed_count,
             error_count=test_run.error_count,
             duration_seconds=test_run.duration_seconds,
-            started_at=test_run.started_at.isoformat()
-            if test_run.started_at
-            else None,
-            completed_at=test_run.completed_at.isoformat()
-            if test_run.completed_at
-            else None,
+            started_at=test_run.started_at.isoformat() if test_run.started_at else None,
+            completed_at=test_run.completed_at.isoformat() if test_run.completed_at else None,
             created_at=test_run.created_at.isoformat(),
             updated_at=test_run.updated_at.isoformat(),
         )
@@ -151,12 +147,8 @@ def get_test_run(
         failed_count=test_run.failed_count,
         error_count=test_run.error_count,
         duration_seconds=test_run.duration_seconds,
-        started_at=test_run.started_at.isoformat()
-        if test_run.started_at
-        else None,
-        completed_at=test_run.completed_at.isoformat()
-        if test_run.completed_at
-        else None,
+        started_at=test_run.started_at.isoformat() if test_run.started_at else None,
+        completed_at=test_run.completed_at.isoformat() if test_run.completed_at else None,
         results=[
             TestResultResponse(
                 id=r.id,
@@ -291,12 +283,8 @@ def start_run(
         failed_count=test_run.failed_count,
         error_count=test_run.error_count,
         duration_seconds=test_run.duration_seconds,
-        started_at=test_run.started_at.isoformat()
-        if test_run.started_at
-        else None,
-        completed_at=test_run.completed_at.isoformat()
-        if test_run.completed_at
-        else None,
+        started_at=test_run.started_at.isoformat() if test_run.started_at else None,
+        completed_at=test_run.completed_at.isoformat() if test_run.completed_at else None,
         created_at=test_run.created_at.isoformat(),
         updated_at=test_run.updated_at.isoformat(),
     )
@@ -342,12 +330,8 @@ def complete_run(
         failed_count=test_run.failed_count,
         error_count=test_run.error_count,
         duration_seconds=test_run.duration_seconds,
-        started_at=test_run.started_at.isoformat()
-        if test_run.started_at
-        else None,
-        completed_at=test_run.completed_at.isoformat()
-        if test_run.completed_at
-        else None,
+        started_at=test_run.started_at.isoformat() if test_run.started_at else None,
+        completed_at=test_run.completed_at.isoformat() if test_run.completed_at else None,
         created_at=test_run.created_at.isoformat(),
         updated_at=test_run.updated_at.isoformat(),
     )

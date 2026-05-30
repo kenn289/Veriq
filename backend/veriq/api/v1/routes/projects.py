@@ -17,9 +17,7 @@ router = APIRouter(prefix="/projects", tags=["projects"])
     "/workspaces/{workspace_id}",
     response_model=list[ProjectResponse],
     dependencies=[
-        Depends(
-            require_workspace_roles(["Admin", "QA Lead", "Developer", "Manager", "Viewer"])
-        )
+        Depends(require_workspace_roles(["Admin", "QA Lead", "Developer", "Manager", "Viewer"]))
     ],
 )
 def get_projects(
@@ -90,9 +88,7 @@ def create_workspace_project(
     """
 
     resolved_slug = payload.slug or slugify(payload.name)
-    if project_repository.get_project_by_slug(
-        session, workspace_id, resolved_slug
-    ):
+    if project_repository.get_project_by_slug(session, workspace_id, resolved_slug):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Project slug exists")
 
     project = create_project(session, workspace_id, payload.name, resolved_slug)
