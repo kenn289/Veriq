@@ -5,12 +5,12 @@ from veriq.application.services.test_generation_service import (
     generate_test_suite,
     get_test_generation_engine,
 )
-from veriq.infrastructure.config.runtime import set_runtime_config
-from veriq.infrastructure.config.settings import get_settings
 from veriq.infrastructure.ai.test_generation_provider import (
     RuleBasedTestGenerationProvider,
     get_test_generation_provider,
 )
+from veriq.infrastructure.config.runtime import set_runtime_config
+from veriq.infrastructure.config.settings import get_settings
 
 
 def test_build_test_generation_prompt_includes_guidance() -> None:
