@@ -24,12 +24,14 @@ type TestRun = {
   results?: TestResult[];
 };
 
-export default function TestRuns({ workspaceId = "default" }: { workspaceId?: string }) {
+export default function TestRuns({ workspaceId }: { workspaceId?: string }) {
   const [runs, setRuns] = useState<TestRun[]>([]);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<TestRun | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [startingRunId, setStartingRunId] = useState<string | null>(null);
 
   function formatError(e: unknown): string {
     if (e instanceof Error) return e.message;
@@ -37,6 +39,13 @@ export default function TestRuns({ workspaceId = "default" }: { workspaceId?: st
   }
 
   async function load() {
+    if (!workspaceId) {
+      setRuns([]);
+      setSelected(null);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -52,15 +61,17 @@ export default function TestRuns({ workspaceId = "default" }: { workspaceId?: st
 
   useEffect(() => {
     load();
-  }, []);
+  }, [workspaceId]);
 
   async function handleCreate() {
-    if (!name) return;
+    if (!name || !workspaceId) return;
     setLoading(true);
     setError(null);
+    setNotice(null);
     try {
-      await api.createTestRun(name, workspaceId);
+      const created = await api.createTestRun(name, workspaceId);
       setName("");
+      setNotice(`Created test run: ${created?.name || "Untitled"}`);
       await load();
     } catch (e) {
       setError(formatError(e));
@@ -72,9 +83,13 @@ export default function TestRuns({ workspaceId = "default" }: { workspaceId?: st
 
   async function openDetails(id: string) {
     setError(null);
+    setNotice(null);
     try {
       const detail = await api.getTestRun(id);
       setSelected(detail);
+      if (!detail.results || detail.results.length === 0) {
+        setNotice("This run has no test results yet. Add test cases to this workspace, then run again.");
+      }
     } catch (e) {
       setError(formatError(e));
       console.error("Failed to load details", e);
@@ -82,9 +97,13 @@ export default function TestRuns({ workspaceId = "default" }: { workspaceId?: st
   }
 
   async function handleStart(id: string) {
+    if (!workspaceId) return;
     setError(null);
+    setNotice(null);
+    setStartingRunId(id);
     try {
       await api.startTestRun(id);
+      setNotice("Run started. Tracking progress...");
       // optimistic update
       setRuns((r) => r.map((x) => (x.id === id ? { ...x, status: "in_progress" } : x)));
 
@@ -99,16 +118,24 @@ export default function TestRuns({ workspaceId = "default" }: { workspaceId?: st
             clearInterval(interval);
             load();
             setSelected(detail);
+            if (!detail.results || detail.results.length === 0) {
+              setNotice("Run completed, but no test cases were found in this workspace.");
+            } else {
+              setNotice(`Run completed with ${detail.results.length} result(s).`);
+            }
+            setStartingRunId(null);
           }
         } catch (e) {
           setError(formatError(e));
           clearInterval(interval);
           load();
+          setStartingRunId(null);
         }
       }, 2000);
     } catch (e) {
       setError(formatError(e));
       console.error(e);
+      setStartingRunId(null);
     }
   }
 
@@ -116,11 +143,21 @@ export default function TestRuns({ workspaceId = "default" }: { workspaceId?: st
     <div className="mt-8 rounded-xl border border-paper/10 bg-paper/5 p-6">
       <h3 className="font-display text-lg">Test Runs</h3>
       <p className="mt-2 text-xs text-paper/60">
-        API workspace: <span className="text-paper/80">{workspaceId}</span>
+        API workspace: <span className="text-paper/80">{workspaceId || "Not selected"}</span>
       </p>
+      {!workspaceId ? (
+        <div className="mt-3 rounded-md border border-amber-400/40 bg-amber-500/10 p-3 text-sm text-amber-100">
+          Select a workspace after login to create and run tests.
+        </div>
+      ) : null}
       {error ? (
         <div className="mt-3 rounded-md border border-red-400/40 bg-red-500/10 p-3 text-sm text-red-200">
           {error}
+        </div>
+      ) : null}
+      {notice ? (
+        <div className="mt-3 rounded-md border border-emerald-400/30 bg-emerald-500/10 p-3 text-sm text-emerald-200">
+          {notice}
         </div>
       ) : null}
       <div className="mt-4 flex gap-2">
@@ -129,8 +166,9 @@ export default function TestRuns({ workspaceId = "default" }: { workspaceId?: st
           onChange={(e) => setName(e.target.value)}
           placeholder="New test run name"
           className="rounded-md px-3 py-2 bg-ink/5 border border-paper/8 flex-1"
+          disabled={!workspaceId}
         />
-        <Button onClick={handleCreate} disabled={loading || !name}>
+        <Button onClick={handleCreate} disabled={loading || !name || !workspaceId}>
           Create
         </Button>
       </div>
@@ -150,8 +188,12 @@ export default function TestRuns({ workspaceId = "default" }: { workspaceId?: st
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="text-sm text-paper/70">{r.status}</div>
-                  <Button variant="outline" onClick={() => handleStart(r.id)} disabled={r.status === "in_progress"}>
-                    Start
+                  <Button
+                    variant="outline"
+                    onClick={() => handleStart(r.id)}
+                    disabled={r.status === "in_progress" || startingRunId === r.id}
+                  >
+                    {startingRunId === r.id ? "Starting..." : "Start"}
                   </Button>
                   <Button variant="outline" onClick={() => openDetails(r.id)}>
                     Details
@@ -178,6 +220,11 @@ export default function TestRuns({ workspaceId = "default" }: { workspaceId?: st
               </div>
 
               <div className="mt-4 space-y-3">
+                {(selected.results || []).length === 0 ? (
+                  <div className="rounded-md border border-paper/8 p-3 text-sm text-paper/60">
+                    No results for this run yet. Create test cases in this workspace, then click Start.
+                  </div>
+                ) : null}
                 {(selected.results || []).map((res) => (
                   <div key={res.id} className="rounded-md border border-paper/8 p-3">
                     <div className="flex items-center justify-between">

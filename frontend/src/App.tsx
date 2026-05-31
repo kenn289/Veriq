@@ -1,24 +1,32 @@
-import {
-  Area,
-  AreaChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { useEffect, useMemo, useState } from "react";
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { Button } from "@/components/ui/button";
 import TestRuns from "@/components/TestRuns";
+import api from "@/lib/api";
 
-const executionData = [
-  { name: "Mon", executions: 120, passRate: 97 },
-  { name: "Tue", executions: 180, passRate: 95 },
-  { name: "Wed", executions: 210, passRate: 96 },
-  { name: "Thu", executions: 170, passRate: 94 },
-  { name: "Fri", executions: 260, passRate: 98 },
-  { name: "Sat", executions: 90, passRate: 99 },
-  { name: "Sun", executions: 140, passRate: 97 },
-];
+type Workspace = {
+  id: string;
+  name: string;
+  slug: string;
+  organization_id: string;
+};
+
+type TestRun = {
+  id: string;
+  name: string;
+  status: string;
+  created_at: string;
+  passed_count: number;
+  failed_count: number;
+  error_count: number;
+};
+
+type PulsePoint = {
+  name: string;
+  executions: number;
+  passRate: number;
+};
 
 const capabilityList = [
   "Requirement parsing and scenario design",
@@ -37,8 +45,130 @@ const capabilityList = [
  *   <App />
  */
 export default function App(): JSX.Element {
+  const [tenantSlug, setTenantSlug] = useState("demo5186");
+  const [email, setEmail] = useState("admin+5186@demo.com");
+  const [password, setPassword] = useState("DemoPass123!");
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [workspaceId, setWorkspaceIdState] = useState<string | undefined>(
+    api.getWorkspaceId() || undefined,
+  );
+
+  const [requirement, setRequirement] = useState("");
+  const [scenarioLimit, setScenarioLimit] = useState(3);
+  const [planLoading, setPlanLoading] = useState(false);
+  const [planError, setPlanError] = useState<string | null>(null);
+  const [planResult, setPlanResult] = useState<any | null>(null);
+
+  const [pulseRuns, setPulseRuns] = useState<TestRun[]>([]);
+
+  const isAuthed = Boolean(api.getAuthToken());
+
+  function formatError(e: unknown): string {
+    if (e instanceof Error) return e.message;
+    return "Request failed";
+  }
+
+  async function loadWorkspaces() {
+    const list = (await api.listWorkspaces()) as Workspace[];
+    setWorkspaces(list || []);
+    if (!workspaceId && list.length > 0) {
+      setWorkspaceIdState(list[0].id);
+      api.setWorkspaceId(list[0].id);
+    }
+  }
+
+  async function handleLogin() {
+    setAuthLoading(true);
+    setAuthError(null);
+    try {
+      await api.login(tenantSlug, email, password);
+      await loadWorkspaces();
+    } catch (e) {
+      setAuthError(formatError(e));
+    } finally {
+      setAuthLoading(false);
+    }
+  }
+
+  function handleLogout() {
+    api.clearSession();
+    setWorkspaces([]);
+    setWorkspaceIdState(undefined);
+    setPulseRuns([]);
+    setPlanResult(null);
+  }
+
+  async function generatePlan() {
+    if (!requirement.trim()) {
+      setPlanError("Please enter a requirement before generating a plan.");
+      return;
+    }
+
+    setPlanLoading(true);
+    setPlanError(null);
+    setPlanResult(null);
+    try {
+      const generated = await api.generateTestPlan(requirement.trim(), scenarioLimit);
+      setPlanResult(generated);
+      document.getElementById("plan-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (e) {
+      setPlanError(formatError(e));
+    } finally {
+      setPlanLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!isAuthed) return;
+    loadWorkspaces().catch((e) => setAuthError(formatError(e)));
+  }, []);
+
+  useEffect(() => {
+    if (!isAuthed || !workspaceId) {
+      setPulseRuns([]);
+      return;
+    }
+
+    api
+      .listTestRuns(workspaceId)
+      .then((runs) => setPulseRuns((runs || []) as TestRun[]))
+      .catch(() => setPulseRuns([]));
+  }, [workspaceId, isAuthed]);
+
+  const executionData: PulsePoint[] = useMemo(() => {
+    const labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const out: PulsePoint[] = labels.map((name) => ({ name, executions: 0, passRate: 0 }));
+
+    for (const run of pulseRuns) {
+      const d = new Date(run.created_at);
+      const idx = (d.getDay() + 6) % 7;
+      out[idx].executions += 1;
+      if (run.status === "completed") {
+        out[idx].passRate += 1;
+      }
+    }
+
+    return out.map((x) => ({
+      ...x,
+      passRate: x.executions > 0 ? Math.round((x.passRate / x.executions) * 100) : 0,
+    }));
+  }, [pulseRuns]);
+
+  const totalRuns = pulseRuns.length;
+  const completedRuns = pulseRuns.filter((r) => r.status === "completed").length;
+  const completionRate = totalRuns > 0 ? Math.round((completedRuns / totalRuns) * 100) : 0;
+  const activeRuns = pulseRuns.filter((r) => r.status === "in_progress").length;
+
   const scrollToRuns = () => {
-    document.getElementById("test-runs-section")?.scrollIntoView({
+    if (!isAuthed) {
+      setAuthError("Login first to generate test plans and run tests.");
+      document.getElementById("auth-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    document.getElementById("plan-section")?.scrollIntoView({
       behavior: "smooth",
       block: "start",
     });
@@ -58,6 +188,78 @@ export default function App(): JSX.Element {
           <span className="font-display text-paper/70">Veriq</span>
           <span className="font-display text-paper/50">AI QA Platform</span>
         </header>
+
+        <section id="auth-section" className="relative mx-auto max-w-6xl px-6 pb-6">
+          <div className="rounded-2xl border border-paper/10 bg-paper/5 p-5">
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="min-w-[180px] flex-1">
+                <label className="mb-1 block text-xs text-paper/70">Tenant slug</label>
+                <input
+                  value={tenantSlug}
+                  onChange={(e) => setTenantSlug(e.target.value)}
+                  className="w-full rounded-md border border-paper/10 bg-ink/40 px-3 py-2"
+                  placeholder="acme"
+                />
+              </div>
+              <div className="min-w-[220px] flex-1">
+                <label className="mb-1 block text-xs text-paper/70">Email</label>
+                <input
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full rounded-md border border-paper/10 bg-ink/40 px-3 py-2"
+                  placeholder="admin@acme.com"
+                />
+              </div>
+              <div className="min-w-[180px] flex-1">
+                <label className="mb-1 block text-xs text-paper/70">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-md border border-paper/10 bg-ink/40 px-3 py-2"
+                  placeholder="********"
+                />
+              </div>
+              {!isAuthed ? (
+                <Button onClick={handleLogin} disabled={authLoading || !tenantSlug || !email || !password}>
+                  {authLoading ? "Signing in..." : "Login"}
+                </Button>
+              ) : (
+                <Button variant="outline" onClick={handleLogout}>
+                  Logout
+                </Button>
+              )}
+            </div>
+
+            {authError ? (
+              <div className="mt-3 rounded-md border border-red-400/40 bg-red-500/10 p-3 text-sm text-red-200">
+                {authError}
+              </div>
+            ) : null}
+
+            <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+              <span className="text-paper/70">Workspace</span>
+              <select
+                className="rounded-md border border-paper/10 bg-ink/40 px-3 py-2"
+                value={workspaceId || ""}
+                onChange={(e) => {
+                  const value = e.target.value || undefined;
+                  setWorkspaceIdState(value);
+                  api.setWorkspaceId(value || null);
+                }}
+                disabled={!isAuthed || workspaces.length === 0}
+              >
+                <option value="">Select workspace</option>
+                {workspaces.map((ws) => (
+                  <option key={ws.id} value={ws.id}>
+                    {ws.name} ({ws.slug})
+                  </option>
+                ))}
+              </select>
+              {!isAuthed ? <span className="text-amber-200">Login required for private account data.</span> : null}
+            </div>
+          </div>
+        </section>
 
         <main className="relative mx-auto grid max-w-6xl gap-10 px-6 pb-20 md:grid-cols-[1.1fr_0.9fr]">
           <section className="animate-[floatIn_0.9s_ease-out] space-y-6">
@@ -95,6 +297,11 @@ export default function App(): JSX.Element {
                 Execution intelligence
               </p>
               <h2 className="font-display text-2xl">Weekly execution pulse</h2>
+              <p className="mt-2 text-xs text-paper/60">
+                {isAuthed && workspaceId
+                  ? "Live data from your selected workspace"
+                  : "Login + workspace selection required for private run metrics"}
+              </p>
             </div>
             <div className="h-60">
               <ResponsiveContainer width="100%" height="100%">
@@ -127,24 +334,86 @@ export default function App(): JSX.Element {
             </div>
             <div className="mt-6 grid gap-4 text-sm text-paper/70">
               <div className="flex items-center justify-between">
-                <span>Locator stability</span>
-                <span className="text-paper">98.2%</span>
+                <span>Total runs (workspace)</span>
+                <span className="text-paper">{totalRuns}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span>AI defect confidence</span>
-                <span className="text-paper">0.91</span>
+                <span>Completion rate</span>
+                <span className="text-paper">{completionRate}%</span>
               </div>
               <div className="flex items-center justify-between">
-                <span>Risk trend</span>
-                <span className="text-paper">Improving</span>
+                <span>Active runs</span>
+                <span className="text-paper">{activeRuns}</span>
               </div>
             </div>
           </section>
         </main>
       </div>
 
+      <section id="plan-section" className="mx-auto max-w-6xl px-6 pb-10">
+        <div className="rounded-2xl border border-paper/10 bg-paper/5 p-6">
+          <h3 className="font-display text-xl">Generate Test Plan</h3>
+          <p className="mt-2 text-sm text-paper/70">
+            Convert a requirement into structured scenarios and executable step suggestions.
+          </p>
+          <textarea
+            value={requirement}
+            onChange={(e) => setRequirement(e.target.value)}
+            className="mt-4 min-h-[110px] w-full rounded-md border border-paper/10 bg-ink/40 px-3 py-2"
+            placeholder="Example: Users can log in, reset password, and view account dashboard."
+          />
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <label className="text-sm text-paper/70">Scenario limit</label>
+            <input
+              type="number"
+              min={1}
+              max={5}
+              value={scenarioLimit}
+              onChange={(e) => setScenarioLimit(Number(e.target.value || 3))}
+              className="w-24 rounded-md border border-paper/10 bg-ink/40 px-3 py-2"
+            />
+            <Button onClick={generatePlan} disabled={planLoading || !requirement.trim() || !isAuthed}>
+              {planLoading ? "Generating..." : "Generate plan"}
+            </Button>
+            {!isAuthed ? <span className="text-xs text-amber-200">Login first to generate plans.</span> : null}
+          </div>
+          {planError ? (
+            <div className="mt-3 rounded-md border border-red-400/40 bg-red-500/10 p-3 text-sm text-red-200">
+              {planError}
+            </div>
+          ) : null}
+        </div>
+      </section>
+
+      {planResult ? (
+        <section id="plan-results" className="mx-auto max-w-6xl px-6 pb-10">
+          <div className="rounded-2xl border border-paper/10 bg-paper/5 p-6">
+            <h3 className="font-display text-xl">Generated Plan</h3>
+            <p className="mt-2 text-sm text-paper/70">{planResult.summary}</p>
+            <div className="mt-4 space-y-3">
+              {(planResult.scenarios || []).map((scenario: any, idx: number) => (
+                <div key={`${scenario.name}-${idx}`} className="rounded-md border border-paper/10 p-4">
+                  <div className="font-medium">{scenario.name}</div>
+                  <div className="mt-1 text-sm text-paper/70">{scenario.description}</div>
+                  <div className="mt-2 text-xs text-paper/60">Priority: {scenario.priority}</div>
+                  <ul className="mt-3 list-disc pl-5 text-sm text-paper/80">
+                    {(scenario.steps || []).map((step: any, i: number) => (
+                      <li key={`${scenario.name}-step-${i}`}>
+                        {step.order}. {step.action}
+                        {step.target ? ` -> ${step.target}` : ""}
+                        {step.value ? ` (${step.value})` : ""}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       <section id="test-runs-section" className="mx-auto max-w-6xl px-6 pb-20">
-        <TestRuns workspaceId={import.meta.env.VITE_WORKSPACE_ID || "default"} />
+        <TestRuns workspaceId={workspaceId} />
       </section>
 
       <section className="mx-auto grid max-w-6xl gap-6 px-6 pb-20 md:grid-cols-3">
