@@ -1,16 +1,18 @@
 from __future__ import annotations
 
 import logging
-from time import perf_counter
 from collections.abc import Iterable
+from time import perf_counter
 
 from sqlalchemy.orm import Session
 
+from veriq.application.services import test_run_service as tr_service
 from veriq.infrastructure.repositories import (
     test_case_repository as tc_repo,
+)
+from veriq.infrastructure.repositories import (
     test_step_repository as ts_repo,
 )
-from veriq.application.services import test_run_service as tr_service
 
 logger = logging.getLogger(__name__)
 

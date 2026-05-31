@@ -4,7 +4,6 @@ from celery import Celery
 
 from veriq.infrastructure.config.settings import get_settings
 
-
 settings = get_settings()
 
 

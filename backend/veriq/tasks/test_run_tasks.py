@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from veriq.celery_app import celery_app
-
-from veriq.infrastructure.db.session import get_session_factory
 from veriq.execution.local_executor import LocalTestExecutor
 from veriq.infrastructure.config.settings import get_settings
+from veriq.infrastructure.db.session import get_session_factory
 
 settings = get_settings()
 

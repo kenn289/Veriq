@@ -5,11 +5,11 @@ from threading import Thread
 
 from sqlalchemy.orm import Session
 
+from veriq.infrastructure.config.settings import get_settings
 from veriq.infrastructure.db.models import TestResultModel, TestRunModel
+from veriq.infrastructure.db.session import get_session_factory
 from veriq.infrastructure.repositories import test_result_repository as trs_repo
 from veriq.infrastructure.repositories import test_run_repository as tr_repo
-from veriq.infrastructure.db.session import get_session_factory
-from veriq.infrastructure.config.settings import get_settings
 
 
 def create_test_run(
