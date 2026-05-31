@@ -92,6 +92,28 @@ export default function App(): JSX.Element {
     }
   }
 
+  async function handleRegister() {
+    setAuthLoading(true);
+    setAuthError(null);
+    try {
+      await api.registerTenantAdmin({
+        tenantName: `${tenantSlug} Tenant`,
+        tenantSlug,
+        organizationName: "Default Org",
+        workspaceName: "Default Workspace",
+        email,
+        fullName: "Workspace Admin",
+        password,
+      });
+      await api.login(tenantSlug, email, password);
+      await loadWorkspaces();
+    } catch (e) {
+      setAuthError(formatError(e));
+    } finally {
+      setAuthLoading(false);
+    }
+  }
+
   function handleLogout() {
     api.clearSession();
     setWorkspaces([]);
@@ -221,9 +243,18 @@ export default function App(): JSX.Element {
                 />
               </div>
               {!isAuthed ? (
-                <Button onClick={handleLogin} disabled={authLoading || !tenantSlug || !email || !password}>
-                  {authLoading ? "Signing in..." : "Login"}
-                </Button>
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={handleRegister}
+                    disabled={authLoading || !tenantSlug || !email || !password}
+                  >
+                    {authLoading ? "Creating..." : "Register"}
+                  </Button>
+                  <Button onClick={handleLogin} disabled={authLoading || !tenantSlug || !email || !password}>
+                    {authLoading ? "Signing in..." : "Login"}
+                  </Button>
+                </>
               ) : (
                 <Button variant="outline" onClick={handleLogout}>
                   Logout
