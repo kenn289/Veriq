@@ -87,7 +87,9 @@ class LocalTestExecutor:
 
         return duration
 
-    def _run_test_case(self, session: Session, test_run_id: str, test_case_id: str, steps: Iterable):
+    def _run_test_case(
+        self, session: Session, test_run_id: str, test_case_id: str, steps: Iterable
+    ):
         # A simple interpreter: any step with value == "__FAIL__" fails.
         for step in steps:
             if getattr(step, "value", None) == "__FAIL__":

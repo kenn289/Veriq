@@ -28,7 +28,9 @@ class PlaywrightExecutor:
     - optional artifact upload to MinIO/S3 using configured settings
     """
 
-    def __init__(self, browser: str | None = None, timeout_ms: int = 30000, retries: int = 2) -> None:
+    def __init__(
+        self, browser: str | None = None, timeout_ms: int = 30000, retries: int = 2
+    ) -> None:
         settings = get_settings()
         self._browser = browser or settings.playwright_browser
         self._timeout_ms = timeout_ms
@@ -52,7 +54,9 @@ class PlaywrightExecutor:
             try:
                 # Strip scheme
                 ep = endpoint.replace("http://", "").replace("https://", "")
-                client = Minio(ep, access_key=access, secret_key=secret, secure=endpoint.startswith("https"))
+                client = Minio(
+                    ep, access_key=access, secret_key=secret, secure=endpoint.startswith("https")
+                )
                 object_name = dest_path
                 client.fput_object(bucket, object_name, path)
                 url = f"{endpoint.rstrip('/')}/{bucket}/{object_name}"
@@ -87,6 +91,7 @@ class PlaywrightExecutor:
 
         run = None
         from veriq.infrastructure.repositories import test_run_repository as tr_repo
+
         run = tr_repo.get_test_run(session, test_run_id)
         if run is None:
             logger.warning("Test run %s not found", test_run_id)
@@ -148,7 +153,9 @@ class PlaywrightExecutor:
 
         return duration
 
-    def _run_test_case(self, page, session: Session, test_run_id: str, test_case_id: str, steps: Iterable):
+    def _run_test_case(
+        self, page, session: Session, test_run_id: str, test_case_id: str, steps: Iterable
+    ):
         from time import sleep
 
         start = perf_counter()
@@ -173,13 +180,21 @@ class PlaywrightExecutor:
                             raise AssertionError(f"Assertion '{value}' not found")
                     else:
                         # Unknown action - log and continue
-                        logger.warning("Unknown action '%s' in step %s", action, getattr(step, "id", "?"))
+                        logger.warning(
+                            "Unknown action '%s' in step %s", action, getattr(step, "id", "?")
+                        )
 
                     success = True
                     break
                 except Exception as exc:
                     last_error = exc
-                    logger.debug("Attempt %d/%d failed for action %s: %s", attempt + 1, self._retries, action, exc)
+                    logger.debug(
+                        "Attempt %d/%d failed for action %s: %s",
+                        attempt + 1,
+                        self._retries,
+                        action,
+                        exc,
+                    )
                     sleep(0.5)
 
             if not success:
@@ -191,21 +206,31 @@ class PlaywrightExecutor:
                     try:
                         page.screenshot(path=screenshot_path, full_page=True)
                     except Exception:
-                        logger.exception("Failed to capture screenshot for test case %s", test_case_id)
+                        logger.exception(
+                            "Failed to capture screenshot for test case %s", test_case_id
+                        )
                     try:
                         with open(html_path, "w", encoding="utf-8") as fh:
                             fh.write(page.content())
                     except Exception:
-                        logger.exception("Failed to save page content for test case %s", test_case_id)
+                        logger.exception(
+                            "Failed to save page content for test case %s", test_case_id
+                        )
 
                     # Upload artifacts
-                    remote_screenshot = self._upload_artifact(screenshot_path, f"test_runs/{test_run_id}/{test_case_id}/screenshot.png")
-                    remote_html = self._upload_artifact(html_path, f"test_runs/{test_run_id}/{test_case_id}/page.html")
+                    remote_screenshot = self._upload_artifact(
+                        screenshot_path, f"test_runs/{test_run_id}/{test_case_id}/screenshot.png"
+                    )
+                    remote_html = self._upload_artifact(
+                        html_path, f"test_runs/{test_run_id}/{test_case_id}/page.html"
+                    )
                     extra_msg = ""
                     if remote_html:
                         extra_msg = f" | page_html={remote_html}"
                 except Exception:
-                    logger.exception("Failed to capture/upload artifacts for test case %s", test_case_id)
+                    logger.exception(
+                        "Failed to capture/upload artifacts for test case %s", test_case_id
+                    )
                     remote_screenshot = None
                     extra_msg = ""
 

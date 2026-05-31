@@ -55,10 +55,14 @@ def test_run_test_case_success_and_failure(monkeypatch):
 
     called = {"reported": []}
 
-    def fake_report(session, test_run_id, test_case_id, status, duration_seconds=0, error_message=None, **kwargs):
+    def fake_report(
+        session, test_run_id, test_case_id, status, duration_seconds=0, error_message=None, **kwargs
+    ):
         called["reported"].append((test_case_id, status, error_message))
 
-    monkeypatch.setattr("veriq.application.services.test_run_service.report_test_result", fake_report)
+    monkeypatch.setattr(
+        "veriq.application.services.test_run_service.report_test_result", fake_report
+    )
 
     # success case
     page = FakePage(content_text="contains-OK")
@@ -69,6 +73,8 @@ def test_run_test_case_success_and_failure(monkeypatch):
     # failure case triggers artifact capture and report
     page2 = FakePage(content_text="no-match-here")
     steps2 = [Step("assert", None, "must-find-this")]
-    ok2 = exe._run_test_case(page2, session=None, test_run_id="r2", test_case_id="tc2", steps=steps2)
+    ok2 = exe._run_test_case(
+        page2, session=None, test_run_id="r2", test_case_id="tc2", steps=steps2
+    )
     assert ok2 is False
-    assert any(r[0] == "tc2" and r[1] == "failed" for r in called["reported"]) 
+    assert any(r[0] == "tc2" and r[1] == "failed" for r in called["reported"])

@@ -9,7 +9,9 @@ def test_local_executor_run_case_reports(monkeypatch):
     def fake_report(session, test_run_id, test_case_id, status, duration_seconds=0, **kwargs):
         reported.append((test_case_id, status, kwargs))
 
-    monkeypatch.setattr("veriq.application.services.test_run_service.report_test_result", fake_report)
+    monkeypatch.setattr(
+        "veriq.application.services.test_run_service.report_test_result", fake_report
+    )
 
     exe = LocalTestExecutor()
     steps_fail = [SimpleNamespace(id="s1", value="__FAIL__")]
