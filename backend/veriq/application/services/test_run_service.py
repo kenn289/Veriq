@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from threading import Thread
 
 from sqlalchemy.orm import Session
 
@@ -8,6 +9,7 @@ from veriq.infrastructure.db.models import TestResultModel, TestRunModel
 from veriq.infrastructure.repositories import test_result_repository as trs_repo
 from veriq.infrastructure.repositories import test_run_repository as tr_repo
 from veriq.infrastructure.db.session import get_session_factory
+from veriq.infrastructure.config.settings import get_settings
 
 
 def create_test_run(
@@ -54,8 +56,6 @@ def start_test_run(session: Session, test_run_id: str) -> TestRunModel | None:
     )
 
     # Decide between async (Celery) or local synchronous execution
-    from veriq.infrastructure.config.settings import get_settings
-
     settings = get_settings()
 
     if settings.celery_enabled:
@@ -76,8 +76,8 @@ def start_test_run(session: Session, test_run_id: str) -> TestRunModel | None:
         # Run executor in a background thread so the API returns in_progress
         # immediately (keeps test expectations and API responsiveness).
         try:
+            # LocalTestExecutor is imported here to avoid circular imports
             from veriq.execution.local_executor import LocalTestExecutor
-            from threading import Thread
 
             def _run_and_update(run_id: str) -> None:
                 # new session for background work

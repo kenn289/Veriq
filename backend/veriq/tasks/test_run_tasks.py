@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from veriq.celery_app import celery_app
 
-from sqlalchemy.orm import scoped_session
-
 from veriq.infrastructure.db.session import get_session_factory
 from veriq.execution.local_executor import LocalTestExecutor
 from veriq.infrastructure.config.settings import get_settings

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from time import perf_counter
-from typing import Iterable
+from collections.abc import Iterable
 
 from sqlalchemy.orm import Session
 
