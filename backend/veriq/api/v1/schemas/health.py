@@ -13,9 +13,7 @@ class HealthResponse(BaseModel):
     timestamp: str = Field(..., description="UTC timestamp in ISO 8601 format.")
 
     model_config = ConfigDict(
-        json_schema_extra={
-            "example": {"status": "ok", "timestamp": "2026-05-30T12:00:00+00:00"}
-        }
+        json_schema_extra={"example": {"status": "ok", "timestamp": "2026-05-30T12:00:00+00:00"}}
     )
 
 

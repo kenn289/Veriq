@@ -59,9 +59,7 @@ def create_test_run(
             error_count=test_run.error_count,
             duration_seconds=test_run.duration_seconds,
             started_at=test_run.started_at.isoformat() if test_run.started_at else None,
-            completed_at=(
-                test_run.completed_at.isoformat() if test_run.completed_at else None
-            ),
+            completed_at=(test_run.completed_at.isoformat() if test_run.completed_at else None),
             created_at=test_run.created_at.isoformat(),
             updated_at=test_run.updated_at.isoformat(),
         )
@@ -150,9 +148,7 @@ def get_test_run(
         error_count=test_run.error_count,
         duration_seconds=test_run.duration_seconds,
         started_at=test_run.started_at.isoformat() if test_run.started_at else None,
-        completed_at=(
-            test_run.completed_at.isoformat() if test_run.completed_at else None
-        ),
+        completed_at=(test_run.completed_at.isoformat() if test_run.completed_at else None),
         results=[
             TestResultResponse(
                 id=r.id,
@@ -172,9 +168,7 @@ def get_test_run(
     )
 
 
-@router.post(
-    "/{test_run_id}/results", response_model=TestResultResponse, status_code=201
-)
+@router.post("/{test_run_id}/results", response_model=TestResultResponse, status_code=201)
 def report_result(
     test_run_id: str,
     request: TestResultReportRequest,
@@ -292,9 +286,7 @@ def start_run(
         error_count=test_run.error_count,
         duration_seconds=test_run.duration_seconds,
         started_at=test_run.started_at.isoformat() if test_run.started_at else None,
-        completed_at=(
-            test_run.completed_at.isoformat() if test_run.completed_at else None
-        ),
+        completed_at=(test_run.completed_at.isoformat() if test_run.completed_at else None),
         created_at=test_run.created_at.isoformat(),
         updated_at=test_run.updated_at.isoformat(),
     )
@@ -341,9 +333,7 @@ def complete_run(
         error_count=test_run.error_count,
         duration_seconds=test_run.duration_seconds,
         started_at=test_run.started_at.isoformat() if test_run.started_at else None,
-        completed_at=(
-            test_run.completed_at.isoformat() if test_run.completed_at else None
-        ),
+        completed_at=(test_run.completed_at.isoformat() if test_run.completed_at else None),
         created_at=test_run.created_at.isoformat(),
         updated_at=test_run.updated_at.isoformat(),
     )

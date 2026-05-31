@@ -25,9 +25,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
     response_model=RegisterResponse,
     status_code=status.HTTP_201_CREATED,
 )
-def register(
-    payload: RegisterRequest, session: Session = Depends(get_session)
-) -> RegisterResponse:
+def register(payload: RegisterRequest, session: Session = Depends(get_session)) -> RegisterResponse:
     """Description: Register a tenant and initial admin user.
     Parameters:
         payload: Registration payload.
@@ -58,9 +56,7 @@ def register(
             password=payload.password,
         )
     except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
-        ) from exc
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
     return RegisterResponse(
         tenant_id=result.tenant_id,
@@ -71,9 +67,7 @@ def register(
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(
-    payload: LoginRequest, session: Session = Depends(get_session)
-) -> TokenResponse:
+def login(payload: LoginRequest, session: Session = Depends(get_session)) -> TokenResponse:
     """Description: Authenticate a user and issue an access token.
     Parameters:
         payload: Login payload.
@@ -93,13 +87,9 @@ def login(
     """
 
     try:
-        result = authenticate_user(
-            session, payload.tenant_slug, payload.email, payload.password
-        )
+        result = authenticate_user(session, payload.tenant_slug, payload.email, payload.password)
     except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)
-        ) from exc
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)) from exc
 
     return TokenResponse(
         access_token=result.access_token,

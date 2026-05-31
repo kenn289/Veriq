@@ -18,9 +18,7 @@ class TestGenerationProvider(Protocol):
 
     def build_prompt(self, requirement: str, scenario_limit: int = 3) -> str: ...
 
-    def generate_suite(
-        self, requirement: str, scenario_limit: int = 3
-    ) -> GeneratedSuite: ...
+    def generate_suite(self, requirement: str, scenario_limit: int = 3) -> GeneratedSuite: ...
 
 
 @dataclass(frozen=True)
@@ -33,9 +31,7 @@ class RuleBasedTestGenerationProvider:
     def build_prompt(self, requirement: str, scenario_limit: int = 3) -> str:
         return build_test_generation_prompt(requirement, scenario_limit)
 
-    def generate_suite(
-        self, requirement: str, scenario_limit: int = 3
-    ) -> GeneratedSuite:
+    def generate_suite(self, requirement: str, scenario_limit: int = 3) -> GeneratedSuite:
         return generate_test_suite(requirement, scenario_limit)
 
 
@@ -77,11 +73,7 @@ def _make_model_provider_from_env() -> TestGenerationProvider | None:
         get_settings.cache_clear()
     except Exception:
         pass
-    mode = (
-        runtime.test_generation_provider
-        or get_settings().test_generation_provider
-        or "rule"
-    )
+    mode = runtime.test_generation_provider or get_settings().test_generation_provider or "rule"
     if mode.lower() != "model":
         return None
 

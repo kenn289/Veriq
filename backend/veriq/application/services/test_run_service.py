@@ -212,9 +212,7 @@ def get_run_summary(session: Session, test_run_id: str) -> dict:
     return trs_repo.get_run_summary(session, test_run_id)
 
 
-def list_test_runs_by_workspace(
-    session: Session, workspace_id: str
-) -> list[TestRunModel]:
+def list_test_runs_by_workspace(session: Session, workspace_id: str) -> list[TestRunModel]:
     """Description: List all test runs in a workspace.
     Parameters:
         session: Database session.

@@ -94,12 +94,8 @@ def create_org_workspace(
     """
 
     resolved_slug = payload.slug or slugify(payload.name)
-    if workspace_repository.get_workspace_by_slug(
-        session, organization_id, resolved_slug
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail="Workspace slug exists"
-        )
+    if workspace_repository.get_workspace_by_slug(session, organization_id, resolved_slug):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Workspace slug exists")
 
     workspace = create_workspace(session, organization_id, payload.name, resolved_slug)
     admin_role = role_repository.get_role_by_name(session, "Admin")
@@ -108,9 +104,7 @@ def create_org_workspace(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Role missing"
         )
 
-    membership_repository.create_membership(
-        session, workspace.id, user.id, admin_role.id
-    )
+    membership_repository.create_membership(session, workspace.id, user.id, admin_role.id)
     return WorkspaceResponse(
         id=workspace.id,
         name=workspace.name,
@@ -123,11 +117,7 @@ def create_org_workspace(
     "/{workspace_id}/detail",
     response_model=WorkspaceResponse,
     dependencies=[
-        Depends(
-            require_workspace_roles(
-                ["Admin", "QA Lead", "Developer", "Manager", "Viewer"]
-            )
-        )
+        Depends(require_workspace_roles(["Admin", "QA Lead", "Developer", "Manager", "Viewer"]))
     ],
 )
 def get_workspace_detail(
@@ -156,9 +146,7 @@ def get_workspace_detail(
 
     workspace = workspace_repository.get_workspace(session, workspace_id)
     if workspace is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Workspace not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workspace not found")
 
     return WorkspaceResponse(
         id=workspace.id,

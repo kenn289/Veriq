@@ -53,16 +53,10 @@ def get_test_case(session: Session, test_case_id: str) -> TestCaseModel | None:
         tc = get_test_case(session, test_case_id)
     """
 
-    return (
-        session.query(TestCaseModel)
-        .filter(TestCaseModel.id == test_case_id)
-        .one_or_none()
-    )
+    return session.query(TestCaseModel).filter(TestCaseModel.id == test_case_id).one_or_none()
 
 
-def get_test_case_by_slug(
-    session: Session, workspace_id: str, slug: str
-) -> TestCaseModel | None:
+def get_test_case_by_slug(session: Session, workspace_id: str, slug: str) -> TestCaseModel | None:
     """Description: Get a test case by workspace and slug.
     Parameters:
         session: Database session.

@@ -34,9 +34,7 @@ def test_create_test_case(db_session: Session, client: TestClient) -> None:
     db_session.add(user)
     db_session.flush()
 
-    workspace = WorkspaceModel(
-        organization_id="org1", name="Test Workspace", slug="test-ws"
-    )
+    workspace = WorkspaceModel(organization_id="org1", name="Test Workspace", slug="test-ws")
     db_session.add(workspace)
     db_session.flush()
 
@@ -150,9 +148,7 @@ def test_test_run_lifecycle(db_session: Session) -> None:
     assert test_run.total_count == 0
 
     # Start run
-    started_run = test_run_service.start_test_run(
-        session=db_session, test_run_id=test_run.id
-    )
+    started_run = test_run_service.start_test_run(session=db_session, test_run_id=test_run.id)
     assert started_run is not None
     assert started_run.status == "in_progress"
 

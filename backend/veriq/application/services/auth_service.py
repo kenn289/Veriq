@@ -89,17 +89,13 @@ def register_tenant_admin(
     password_hash = hash_password(password)
     if user_repository.get_user_by_email(session, tenant.id, email) is not None:
         raise ValueError("User already exists")
-    user = user_repository.create_user(
-        session, tenant.id, email, full_name, password_hash
-    )
+    user = user_repository.create_user(session, tenant.id, email, full_name, password_hash)
 
     admin_role = role_repository.get_role_by_name(session, "Admin")
     if admin_role is None:
         raise ValueError("Admin role is not configured")
 
-    membership_repository.create_membership(
-        session, workspace.id, user.id, admin_role.id
-    )
+    membership_repository.create_membership(session, workspace.id, user.id, admin_role.id)
 
     return RegisterResult(
         tenant_id=tenant.id,
@@ -109,9 +105,7 @@ def register_tenant_admin(
     )
 
 
-def authenticate_user(
-    session: Session, tenant_slug: str, email: str, password: str
-) -> AuthResult:
+def authenticate_user(session: Session, tenant_slug: str, email: str, password: str) -> AuthResult:
     """Description: Authenticate a user and return access token data.
     Parameters:
         session: Database session.
@@ -138,6 +132,4 @@ def authenticate_user(
 
     access_token = create_access_token(subject=user.id, tenant_id=tenant.id)
     expires_in = get_settings().access_token_expire_minutes * 60
-    return AuthResult(
-        access_token=access_token, token_type="bearer", expires_in=expires_in
-    )
+    return AuthResult(access_token=access_token, token_type="bearer", expires_in=expires_in)

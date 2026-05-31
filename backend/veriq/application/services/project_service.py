@@ -23,9 +23,7 @@ def create_project(
     """
 
     resolved_slug = slug or slugify(name)
-    project = project_repository.create_project(
-        session, workspace_id, name, resolved_slug
-    )
+    project = project_repository.create_project(session, workspace_id, name, resolved_slug)
     return project
 
 

@@ -68,17 +68,13 @@ class PlaywrightExecutor:
                 logger.exception("Failed to upload artifact to MinIO")
 
         # Try aws s3 via aws cli if configured
-        aws_bucket = os.environ.get("AWS_S3_BUCKET") or os.environ.get(
-            "VERIQ_AWS_S3_BUCKET"
-        )
+        aws_bucket = os.environ.get("AWS_S3_BUCKET") or os.environ.get("VERIQ_AWS_S3_BUCKET")
         if aws_bucket:
             try:
                 import subprocess
 
                 key = dest_path
-                subprocess.check_call(
-                    ["aws", "s3", "cp", path, f"s3://{aws_bucket}/{key}"]
-                )
+                subprocess.check_call(["aws", "s3", "cp", path, f"s3://{aws_bucket}/{key}"])
                 region = os.environ.get("AWS_DEFAULT_REGION", "")
                 url = f"https://{aws_bucket}.s3.{region}.amazonaws.com/{key}"
                 return url
@@ -121,9 +117,7 @@ class PlaywrightExecutor:
                 page = context.new_page()
                 try:
                     steps = ts_repo.list_test_steps(session, tc.id)
-                    tc_passed = self._run_test_case(
-                        page, session, test_run_id, tc.id, steps
-                    )
+                    tc_passed = self._run_test_case(page, session, test_run_id, tc.id, steps)
                     if tc_passed:
                         passed += 1
                     else:

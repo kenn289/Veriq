@@ -57,9 +57,7 @@ class RuleBasedTestGenerationEngine:
     def build_prompt(self, requirement: str, scenario_limit: int = 3) -> str:
         return build_test_generation_prompt(requirement, scenario_limit)
 
-    def generate_suite(
-        self, requirement: str, scenario_limit: int = 3
-    ) -> GeneratedSuite:
+    def generate_suite(self, requirement: str, scenario_limit: int = 3) -> GeneratedSuite:
         return _generate_rule_based_suite(requirement, scenario_limit)
 
 
@@ -106,14 +104,9 @@ def build_test_generation_prompt(requirement: str, scenario_limit: int = 3) -> s
 
 def _detect_focus(requirement: str) -> tuple[str, list[str], str]:
     normalized = requirement.lower()
-    if any(
-        keyword in normalized
-        for keyword in ["login", "sign in", "authenticate", "password"]
-    ):
+    if any(keyword in normalized for keyword in ["login", "sign in", "authenticate", "password"]):
         return "authentication", ["auth", "security", "smoke"], "/login"
-    if any(
-        keyword in normalized for keyword in ["checkout", "payment", "cart", "order"]
-    ):
+    if any(keyword in normalized for keyword in ["checkout", "payment", "cart", "order"]):
         return "checkout", ["commerce", "billing", "smoke"], "/checkout"
     if any(keyword in normalized for keyword in ["search", "filter", "sort"]):
         return "search", ["discovery", "ui", "smoke"], "/search"
@@ -186,9 +179,7 @@ def _recovery_steps(entry_point: str) -> list[GeneratedStep]:
     ]
 
 
-def _generate_rule_based_suite(
-    requirement: str, scenario_limit: int = 3
-) -> GeneratedSuite:
+def _generate_rule_based_suite(requirement: str, scenario_limit: int = 3) -> GeneratedSuite:
     """Description: Generate a deterministic test suite from a natural-language requirement.
     Parameters:
         requirement: Natural-language product requirement.
@@ -243,7 +234,9 @@ def _generate_rule_based_suite(
             )
         )
 
-    summary = f"Generated {len(scenarios)} scenario{'s' if len(scenarios) != 1 else ''} for {focus}."
+    summary = (
+        f"Generated {len(scenarios)} scenario{'s' if len(scenarios) != 1 else ''} for {focus}."
+    )
     return GeneratedSuite(
         requirement=requirement.strip(),
         summary=summary,

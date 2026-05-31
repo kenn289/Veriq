@@ -1,9 +1,7 @@
 from veriq.infrastructure.ai.llm_client import HuggingFaceLLMClient
 
 print("Instantiating client with adapter...")
-client = HuggingFaceLLMClient(
-    "distilgpt2", adapter_dir="backend/llm/adapters/lora-distilgpt2"
-)
+client = HuggingFaceLLMClient("distilgpt2", adapter_dir="backend/llm/adapters/lora-distilgpt2")
 print("Generating with adapter...")
 print(
     client.generate(

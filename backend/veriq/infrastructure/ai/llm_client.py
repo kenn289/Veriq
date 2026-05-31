@@ -36,9 +36,7 @@ class HuggingFaceLLMClient(LLMClientProtocol):
         if self.model is not None and self.tokenizer is not None:
             return
         if AutoModelForCausalLM is None:
-            raise RuntimeError(
-                "transformers not installed; install backend/llm/requirements.txt"
-            )
+            raise RuntimeError("transformers not installed; install backend/llm/requirements.txt")
 
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, use_fast=False)
         # Prefer 4-bit quantized load when available for larger models, but
@@ -51,9 +49,7 @@ class HuggingFaceLLMClient(LLMClientProtocol):
                 device_map="auto",
             )
         except Exception:
-            self.model = AutoModelForCausalLM.from_pretrained(
-                self.model_name, device_map="auto"
-            )
+            self.model = AutoModelForCausalLM.from_pretrained(self.model_name, device_map="auto")
 
         # If a LoRA adapter dir exists, try to load it
         if self.adapter_dir:
@@ -80,9 +76,7 @@ class HuggingFaceLLMClient(LLMClientProtocol):
         self._ensure_loaded()
         inputs = self.tokenizer(prompt, return_tensors="pt")
         if torch is not None:
-            inputs = {
-                k: v.to(next(self.model.parameters()).device) for k, v in inputs.items()
-            }
+            inputs = {k: v.to(next(self.model.parameters()).device) for k, v in inputs.items()}
 
         # Map common option names to the transformers generate() API
         gen_kwargs = dict(
