@@ -5,8 +5,10 @@ from starlette.middleware.cors import CORSMiddleware
 
 from veriq.api.v1 import router as v1_router
 from veriq.infrastructure.config.settings import get_settings
+from veriq.infrastructure.db import models as _models  # noqa: F401
+from veriq.infrastructure.db.base import Base
 from veriq.infrastructure.db.seed import seed_roles
-from veriq.infrastructure.db.session import get_session_factory
+from veriq.infrastructure.db.session import get_engine, get_session_factory
 
 
 def create_app(seed_roles_on_startup: bool | None = None) -> FastAPI:
@@ -64,6 +66,11 @@ def create_app(seed_roles_on_startup: bool | None = None) -> FastAPI:
         Usage Example:
             _startup()
         """
+
+        # Local SQLite developer mode: auto-create schema so first run works
+        # without requiring a separate migration command.
+        if settings.database_url.startswith("sqlite"):
+            Base.metadata.create_all(bind=get_engine())
 
         should_seed = (
             settings.seed_roles_on_startup
