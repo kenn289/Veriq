@@ -37,6 +37,17 @@ const capabilityList = [
  *   <App />
  */
 export default function App(): JSX.Element {
+  const scrollToRuns = () => {
+    document.getElementById("test-runs-section")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
+  const openApiDocs = () => {
+    window.open("http://localhost:8000/docs", "_blank", "noopener,noreferrer");
+  };
+
   return (
     <div className="min-h-screen bg-ink text-paper">
       <div className="relative overflow-hidden">
@@ -61,8 +72,12 @@ export default function App(): JSX.Element {
               actionable quality intelligence without manual stitching.
             </p>
             <div className="flex flex-wrap gap-4">
-              <Button variant="default">Generate a test plan</Button>
-              <Button variant="outline">View platform roadmap</Button>
+              <Button variant="default" onClick={scrollToRuns}>
+                Generate a test plan
+              </Button>
+              <Button variant="outline" onClick={openApiDocs}>
+                Open API docs
+              </Button>
             </div>
             <div className="grid gap-3 rounded-2xl border border-paper/10 bg-paper/5 p-5 shadow-glow">
               {capabilityList.map((item) => (
@@ -128,7 +143,7 @@ export default function App(): JSX.Element {
         </main>
       </div>
 
-      <section className="mx-auto max-w-6xl px-6 pb-20">
+      <section id="test-runs-section" className="mx-auto max-w-6xl px-6 pb-20">
         <TestRuns workspaceId={import.meta.env.VITE_WORKSPACE_ID || "default"} />
       </section>
 

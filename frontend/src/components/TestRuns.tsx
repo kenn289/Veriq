@@ -29,13 +29,21 @@ export default function TestRuns({ workspaceId = "default" }: { workspaceId?: st
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<TestRun | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  function formatError(e: unknown): string {
+    if (e instanceof Error) return e.message;
+    return "Request failed";
+  }
 
   async function load() {
     setLoading(true);
+    setError(null);
     try {
       const data = await api.listTestRuns(workspaceId);
       setRuns(data || []);
     } catch (e) {
+      setError(formatError(e));
       console.error("Failed to load runs", e);
     } finally {
       setLoading(false);
@@ -49,11 +57,13 @@ export default function TestRuns({ workspaceId = "default" }: { workspaceId?: st
   async function handleCreate() {
     if (!name) return;
     setLoading(true);
+    setError(null);
     try {
       await api.createTestRun(name, workspaceId);
       setName("");
       await load();
     } catch (e) {
+      setError(formatError(e));
       console.error(e);
     } finally {
       setLoading(false);
@@ -61,15 +71,18 @@ export default function TestRuns({ workspaceId = "default" }: { workspaceId?: st
   }
 
   async function openDetails(id: string) {
+    setError(null);
     try {
       const detail = await api.getTestRun(id);
       setSelected(detail);
     } catch (e) {
+      setError(formatError(e));
       console.error("Failed to load details", e);
     }
   }
 
   async function handleStart(id: string) {
+    setError(null);
     try {
       await api.startTestRun(id);
       // optimistic update
@@ -88,11 +101,13 @@ export default function TestRuns({ workspaceId = "default" }: { workspaceId?: st
             setSelected(detail);
           }
         } catch (e) {
+          setError(formatError(e));
           clearInterval(interval);
           load();
         }
       }, 2000);
     } catch (e) {
+      setError(formatError(e));
       console.error(e);
     }
   }
@@ -100,6 +115,14 @@ export default function TestRuns({ workspaceId = "default" }: { workspaceId?: st
   return (
     <div className="mt-8 rounded-xl border border-paper/10 bg-paper/5 p-6">
       <h3 className="font-display text-lg">Test Runs</h3>
+      <p className="mt-2 text-xs text-paper/60">
+        API workspace: <span className="text-paper/80">{workspaceId}</span>
+      </p>
+      {error ? (
+        <div className="mt-3 rounded-md border border-red-400/40 bg-red-500/10 p-3 text-sm text-red-200">
+          {error}
+        </div>
+      ) : null}
       <div className="mt-4 flex gap-2">
         <input
           value={name}

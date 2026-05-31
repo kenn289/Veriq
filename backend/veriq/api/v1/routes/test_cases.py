@@ -17,7 +17,7 @@ from veriq.infrastructure.db.models import UserModel
 from veriq.infrastructure.repositories import test_case_repository as tc_repo
 from veriq.infrastructure.repositories import test_step_repository as ts_repo
 
-router = APIRouter(prefix="/api/v1/test_cases", tags=["test_cases"])
+router = APIRouter(prefix="/test_cases", tags=["test_cases"])
 
 
 @router.post("", response_model=TestCaseResponse, status_code=201)

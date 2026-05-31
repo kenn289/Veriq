@@ -17,7 +17,7 @@ from veriq.application.services import test_run_service
 from veriq.infrastructure.db.models import UserModel
 from veriq.infrastructure.repositories import test_run_repository as tr_repo
 
-router = APIRouter(prefix="/api/v1/test_runs", tags=["test_runs"])
+router = APIRouter(prefix="/test_runs", tags=["test_runs"])
 
 
 @router.post("", response_model=TestRunResponse, status_code=201)

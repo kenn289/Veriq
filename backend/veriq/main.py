@@ -36,6 +36,24 @@ def create_app(seed_roles_on_startup: bool | None = None) -> FastAPI:
         allow_headers=["*"],
     )
 
+    @app.get("/")
+    def root() -> dict[str, str]:
+        """Description: Provide a friendly API root response.
+        Parameters:
+            None
+        Returns:
+            dict[str, str]: API entry point guidance.
+        Usage Example:
+            GET /
+        """
+
+        return {
+            "message": "Veriq API is running",
+            "health": "/api/v1/health",
+            "version": "/api/v1/version",
+            "docs": "/docs",
+        }
+
     @app.on_event("startup")
     def _startup() -> None:
         """Description: Run startup hooks for database seeding.
