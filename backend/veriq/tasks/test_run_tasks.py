@@ -7,15 +7,9 @@ from veriq.infrastructure.db.session import get_session_factory
 
 settings = get_settings()
 
-_EXECUTOR_BACKENDS = {
-    "local": LocalTestExecutor,
-}
-
 try:
     # optional Playwright executor
     from veriq.execution.playwright_executor import PlaywrightExecutor
-
-    _EXECUTOR_BACKENDS["playwright"] = PlaywrightExecutor
 except Exception:
     PlaywrightExecutor = None
 
@@ -30,12 +24,10 @@ def execute_test_run_task(test_run_id: str) -> int:
     session = session_factory()
     try:
         backend = settings.execution_backend or "local"
-        executor_cls = _EXECUTOR_BACKENDS.get(backend, LocalTestExecutor)
-        # PlaywrightExecutor constructor accepts browser param
-        if backend == "playwright":
-            executor = executor_cls(browser=settings.playwright_browser)
+        if backend == "playwright" and PlaywrightExecutor is not None:
+            executor = PlaywrightExecutor(browser=settings.playwright_browser)
         else:
-            executor = executor_cls()
+            executor = LocalTestExecutor()
 
         duration = executor.execute_test_run(session, test_run_id)
         session.commit()
