@@ -164,9 +164,17 @@ export default function TestRuns({ workspaceId = "default" }: { workspaceId?: st
                       </div>
                       <div className="flex items-center gap-2">
                         {res.failure_screenshot ? (
-                          <a href={res.failure_screenshot} target="_blank" rel="noreferrer" className="text-sm text-mint/90">
-                            View screenshot
-                          </a>
+                          <div className="flex items-center gap-2">
+                            <a href={res.failure_screenshot} target="_blank" rel="noreferrer">
+                              <img src={res.failure_screenshot} alt="screenshot" className="w-24 h-auto rounded-md border" />
+                            </a>
+                            <a href={res.failure_screenshot} target="_blank" rel="noreferrer" className="text-sm text-mint/90">
+                              Open
+                            </a>
+                            <a href={res.failure_screenshot} download className="text-sm text-paper/70">
+                              Download
+                            </a>
+                          </div>
                         ) : null}
                         {res.error_message ? <div className="text-xs text-paper/60">{res.error_message}</div> : null}
                       </div>
