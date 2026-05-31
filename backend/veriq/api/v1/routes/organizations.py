@@ -5,7 +5,10 @@ from sqlalchemy.orm import Session
 
 from veriq.api.dependencies.auth import get_current_user, require_tenant_roles
 from veriq.api.dependencies.db import get_session
-from veriq.api.v1.schemas.organization import OrganizationCreateRequest, OrganizationResponse
+from veriq.api.v1.schemas.organization import (
+    OrganizationCreateRequest,
+    OrganizationResponse,
+)
 from veriq.application.services.organization_service import (
     create_organization,
     list_organizations,
@@ -40,7 +43,10 @@ def get_organizations(
     """
 
     organizations = list_organizations(session, user.tenant_id)
-    return [OrganizationResponse(id=org.id, name=org.name, slug=org.slug) for org in organizations]
+    return [
+        OrganizationResponse(id=org.id, name=org.name, slug=org.slug)
+        for org in organizations
+    ]
 
 
 @router.post(
@@ -76,8 +82,16 @@ def create_org(
     """
 
     resolved_slug = payload.slug or slugify(payload.name)
-    if organization_repository.get_organization_by_slug(session, user.tenant_id, resolved_slug):
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Organization slug exists")
+    if organization_repository.get_organization_by_slug(
+        session, user.tenant_id, resolved_slug
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Organization slug exists"
+        )
 
-    organization = create_organization(session, user.tenant_id, payload.name, resolved_slug)
-    return OrganizationResponse(id=organization.id, name=organization.name, slug=organization.slug)
+    organization = create_organization(
+        session, user.tenant_id, payload.name, resolved_slug
+    )
+    return OrganizationResponse(
+        id=organization.id, name=organization.name, slug=organization.slug
+    )

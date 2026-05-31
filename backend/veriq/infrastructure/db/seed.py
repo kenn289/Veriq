@@ -24,7 +24,10 @@ def seed_roles(session: Session) -> None:
     """
 
     existing = {
-        role.name for role in session.query(RoleModel).filter(RoleModel.name.in_(ROLE_DEFINITIONS))
+        role.name
+        for role in session.query(RoleModel).filter(
+            RoleModel.name.in_(ROLE_DEFINITIONS)
+        )
     }
     for name, description in ROLE_DEFINITIONS.items():
         if name in existing:

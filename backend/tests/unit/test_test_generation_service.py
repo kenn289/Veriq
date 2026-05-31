@@ -26,7 +26,9 @@ def test_build_test_generation_prompt_includes_guidance() -> None:
 
 
 def test_generate_test_suite_for_login_requirement() -> None:
-    suite = generate_test_suite("Users can log in with email and password", scenario_limit=3)
+    suite = generate_test_suite(
+        "Users can log in with email and password", scenario_limit=3
+    )
 
     assert suite.focus == "authentication"
     assert len(suite.scenarios) == 3
@@ -48,8 +50,12 @@ def test_generate_test_suite_defaults_to_generic_workflow() -> None:
 def test_rule_based_engine_uses_same_prompt_and_generation() -> None:
     engine = get_test_generation_engine()
 
-    prompt = engine.build_prompt("Users can log in with email and password", scenario_limit=2)
-    suite = engine.generate_suite("Users can log in with email and password", scenario_limit=2)
+    prompt = engine.build_prompt(
+        "Users can log in with email and password", scenario_limit=2
+    )
+    suite = engine.generate_suite(
+        "Users can log in with email and password", scenario_limit=2
+    )
 
     assert "Scenario limit: 2" in prompt
     assert suite.focus == "authentication"
@@ -67,8 +73,12 @@ def test_rule_based_provider_delegates_to_generator(monkeypatch) -> None:
     provider = get_test_generation_provider()
 
     assert isinstance(provider, RuleBasedTestGenerationProvider)
-    prompt = provider.build_prompt("Users can log in with email and password", scenario_limit=1)
-    suite = provider.generate_suite("Users can log in with email and password", scenario_limit=1)
+    prompt = provider.build_prompt(
+        "Users can log in with email and password", scenario_limit=1
+    )
+    suite = provider.generate_suite(
+        "Users can log in with email and password", scenario_limit=1
+    )
 
     assert "Detected focus: authentication" in prompt
     assert suite.focus == "authentication"

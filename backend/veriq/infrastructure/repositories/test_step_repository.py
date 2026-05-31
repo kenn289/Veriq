@@ -53,7 +53,9 @@ def get_test_step(session: Session, step_id: str) -> TestStepModel | None:
         step = get_test_step(session, step_id)
     """
 
-    return session.query(TestStepModel).filter(TestStepModel.id == step_id).one_or_none()
+    return (
+        session.query(TestStepModel).filter(TestStepModel.id == step_id).one_or_none()
+    )
 
 
 def list_test_steps(session: Session, test_case_id: str) -> list[TestStepModel]:

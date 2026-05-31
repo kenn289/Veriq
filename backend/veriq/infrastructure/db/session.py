@@ -35,7 +35,9 @@ def get_session_factory() -> sessionmaker[Session]:
     """
 
     engine = get_engine()
-    return sessionmaker(bind=engine, autoflush=False, autocommit=False, expire_on_commit=False)
+    return sessionmaker(
+        bind=engine, autoflush=False, autocommit=False, expire_on_commit=False
+    )
 
 
 def get_db_session() -> Generator[Session, None, None]:

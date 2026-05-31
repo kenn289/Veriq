@@ -53,7 +53,9 @@ def get_membership(
     )
 
 
-def list_memberships_for_user(session: Session, user_id: str) -> list[WorkspaceMembershipModel]:
+def list_memberships_for_user(
+    session: Session, user_id: str
+) -> list[WorkspaceMembershipModel]:
     """Description: List workspace memberships for a user.
     Parameters:
         session: Database session.

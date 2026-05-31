@@ -93,4 +93,6 @@ def persist_runtime_to_env(updates: dict) -> None:
             continue
         out_lines.append(f"{k}={v}")
 
-    env_path.write_text("\n".join(out_lines) + ("\n" if out_lines else ""), encoding="utf-8")
+    env_path.write_text(
+        "\n".join(out_lines) + ("\n" if out_lines else ""), encoding="utf-8"
+    )

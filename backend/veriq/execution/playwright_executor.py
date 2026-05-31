@@ -55,7 +55,10 @@ class PlaywrightExecutor:
                 # Strip scheme
                 ep = endpoint.replace("http://", "").replace("https://", "")
                 client = Minio(
-                    ep, access_key=access, secret_key=secret, secure=endpoint.startswith("https")
+                    ep,
+                    access_key=access,
+                    secret_key=secret,
+                    secure=endpoint.startswith("https"),
                 )
                 object_name = dest_path
                 client.fput_object(bucket, object_name, path)
@@ -65,13 +68,17 @@ class PlaywrightExecutor:
                 logger.exception("Failed to upload artifact to MinIO")
 
         # Try aws s3 via aws cli if configured
-        aws_bucket = os.environ.get("AWS_S3_BUCKET") or os.environ.get("VERIQ_AWS_S3_BUCKET")
+        aws_bucket = os.environ.get("AWS_S3_BUCKET") or os.environ.get(
+            "VERIQ_AWS_S3_BUCKET"
+        )
         if aws_bucket:
             try:
                 import subprocess
 
                 key = dest_path
-                subprocess.check_call(["aws", "s3", "cp", path, f"s3://{aws_bucket}/{key}"])
+                subprocess.check_call(
+                    ["aws", "s3", "cp", path, f"s3://{aws_bucket}/{key}"]
+                )
                 region = os.environ.get("AWS_DEFAULT_REGION", "")
                 url = f"https://{aws_bucket}.s3.{region}.amazonaws.com/{key}"
                 return url
@@ -114,7 +121,9 @@ class PlaywrightExecutor:
                 page = context.new_page()
                 try:
                     steps = ts_repo.list_test_steps(session, tc.id)
-                    tc_passed = self._run_test_case(page, session, test_run_id, tc.id, steps)
+                    tc_passed = self._run_test_case(
+                        page, session, test_run_id, tc.id, steps
+                    )
                     if tc_passed:
                         passed += 1
                     else:
@@ -154,7 +163,12 @@ class PlaywrightExecutor:
         return duration
 
     def _run_test_case(
-        self, page, session: Session, test_run_id: str, test_case_id: str, steps: Iterable
+        self,
+        page,
+        session: Session,
+        test_run_id: str,
+        test_case_id: str,
+        steps: Iterable,
     ):
         from time import sleep
 
@@ -181,7 +195,9 @@ class PlaywrightExecutor:
                     else:
                         # Unknown action - log and continue
                         logger.warning(
-                            "Unknown action '%s' in step %s", action, getattr(step, "id", "?")
+                            "Unknown action '%s' in step %s",
+                            action,
+                            getattr(step, "id", "?"),
                         )
 
                     success = True
@@ -207,7 +223,8 @@ class PlaywrightExecutor:
                         page.screenshot(path=screenshot_path, full_page=True)
                     except Exception:
                         logger.exception(
-                            "Failed to capture screenshot for test case %s", test_case_id
+                            "Failed to capture screenshot for test case %s",
+                            test_case_id,
                         )
                     try:
                         with open(html_path, "w", encoding="utf-8") as fh:
@@ -219,7 +236,8 @@ class PlaywrightExecutor:
 
                     # Upload artifacts
                     remote_screenshot = self._upload_artifact(
-                        screenshot_path, f"test_runs/{test_run_id}/{test_case_id}/screenshot.png"
+                        screenshot_path,
+                        f"test_runs/{test_run_id}/{test_case_id}/screenshot.png",
                     )
                     remote_html = self._upload_artifact(
                         html_path, f"test_runs/{test_run_id}/{test_case_id}/page.html"
@@ -229,7 +247,8 @@ class PlaywrightExecutor:
                         extra_msg = f" | page_html={remote_html}"
                 except Exception:
                     logger.exception(
-                        "Failed to capture/upload artifacts for test case %s", test_case_id
+                        "Failed to capture/upload artifacts for test case %s",
+                        test_case_id,
                     )
                     remote_screenshot = None
                     extra_msg = ""

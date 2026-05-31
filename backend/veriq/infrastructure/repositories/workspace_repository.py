@@ -27,7 +27,9 @@ def create_workspace(
     return workspace
 
 
-def list_workspaces_by_org(session: Session, organization_id: str) -> list[WorkspaceModel]:
+def list_workspaces_by_org(
+    session: Session, organization_id: str
+) -> list[WorkspaceModel]:
     """Description: List workspaces for an organization.
     Parameters:
         session: Database session.
@@ -75,7 +77,11 @@ def get_workspace(session: Session, workspace_id: str) -> WorkspaceModel | None:
         workspace = get_workspace(session, workspace_id)
     """
 
-    return session.query(WorkspaceModel).filter(WorkspaceModel.id == workspace_id).one_or_none()
+    return (
+        session.query(WorkspaceModel)
+        .filter(WorkspaceModel.id == workspace_id)
+        .one_or_none()
+    )
 
 
 def get_workspace_by_slug(
@@ -94,6 +100,9 @@ def get_workspace_by_slug(
 
     return (
         session.query(WorkspaceModel)
-        .filter(WorkspaceModel.organization_id == organization_id, WorkspaceModel.slug == slug)
+        .filter(
+            WorkspaceModel.organization_id == organization_id,
+            WorkspaceModel.slug == slug,
+        )
         .one_or_none()
     )

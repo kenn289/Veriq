@@ -44,7 +44,9 @@ def get_test_run(session: Session, test_run_id: str) -> TestRunModel | None:
         run = get_test_run(session, test_run_id)
     """
 
-    return session.query(TestRunModel).filter(TestRunModel.id == test_run_id).one_or_none()
+    return (
+        session.query(TestRunModel).filter(TestRunModel.id == test_run_id).one_or_none()
+    )
 
 
 def list_test_runs(session: Session, workspace_id: str) -> list[TestRunModel]:

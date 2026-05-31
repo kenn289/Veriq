@@ -24,7 +24,9 @@ from veriq.infrastructure.repositories import (
 )
 
 
-def _register_admin_and_get_headers(client: TestClient) -> tuple[dict[str, str], str, str]:
+def _register_admin_and_get_headers(
+    client: TestClient,
+) -> tuple[dict[str, str], str, str]:
     register_response = client.post(
         "/api/v1/auth/register",
         json={
@@ -62,7 +64,9 @@ def test_domain_models_can_be_instantiated() -> None:
         name="Core",
         slug="core",
     )
-    project = Project(id="project-1", workspace_id="workspace-1", name="Web", slug="web")
+    project = Project(
+        id="project-1", workspace_id="workspace-1", name="Web", slug="web"
+    )
     membership = WorkspaceMembership(
         id="membership-1",
         workspace_id="workspace-1",
@@ -142,7 +146,9 @@ def test_test_case_and_test_run_routes_cover_main_branches(
     assert list_cases_response.status_code == 200
     assert len(list_cases_response.json()) == 1
 
-    get_case_response = client.get(f"/api/v1/api/v1/test_cases/{test_case_id}", headers=headers)
+    get_case_response = client.get(
+        f"/api/v1/api/v1/test_cases/{test_case_id}", headers=headers
+    )
     assert get_case_response.status_code == 200
 
     add_step_response = client.post(
@@ -176,7 +182,9 @@ def test_test_case_and_test_run_routes_cover_main_branches(
     assert list_runs_response.status_code == 200
     assert len(list_runs_response.json()) == 1
 
-    start_response = client.post(f"/api/v1/api/v1/test_runs/{test_run_id}/start", headers=headers)
+    start_response = client.post(
+        f"/api/v1/api/v1/test_runs/{test_run_id}/start", headers=headers
+    )
     assert start_response.status_code == 200
     assert start_response.json()["status"] == "in_progress"
 
@@ -198,7 +206,9 @@ def test_test_case_and_test_run_routes_cover_main_branches(
     assert summary_response.status_code == 200
     assert summary_response.json()["passed"] == 1
 
-    detail_response = client.get(f"/api/v1/api/v1/test_runs/{test_run_id}", headers=headers)
+    detail_response = client.get(
+        f"/api/v1/api/v1/test_runs/{test_run_id}", headers=headers
+    )
     assert detail_response.status_code == 200
     assert len(detail_response.json()["results"]) == 1
 

@@ -19,7 +19,9 @@ def test_api_uses_model_provider(monkeypatch, tmp_path):
 
     # Construct a provider instance with our fake client and ensure the app
     # uses the same provider object so we can observe metadata after the call.
-    provider_instance = provider_mod.ModelTestGenerationProvider(client=FakeClient("dummy-model"))
+    provider_instance = provider_mod.ModelTestGenerationProvider(
+        client=FakeClient("dummy-model")
+    )
     # Patch the symbol imported into the route module so the endpoint uses
     # our provider instance during the request handling.
     monkeypatch.setattr(
@@ -29,7 +31,10 @@ def test_api_uses_model_provider(monkeypatch, tmp_path):
 
     client = TestClient(app)
 
-    payload = {"requirement": "Users can log in with email and password", "scenario_limit": 2}
+    payload = {
+        "requirement": "Users can log in with email and password",
+        "scenario_limit": 2,
+    }
     resp = client.post("/api/v1/ai/test-generation", json=payload)
     assert resp.status_code == 200
     body = resp.json()
@@ -38,4 +43,6 @@ def test_api_uses_model_provider(monkeypatch, tmp_path):
     # Ensure metadata was recorded on the provider instance when model path was used
     # The provider instance we injected should have metadata recorded
     assert provider_instance.metadata is not None
-    assert "FAKE_GENERATION_RESPONSE" in (provider_instance.metadata.raw_response_excerpt or "")
+    assert "FAKE_GENERATION_RESPONSE" in (
+        provider_instance.metadata.raw_response_excerpt or ""
+    )

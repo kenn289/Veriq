@@ -56,7 +56,13 @@ def test_run_test_case_success_and_failure(monkeypatch):
     called = {"reported": []}
 
     def fake_report(
-        session, test_run_id, test_case_id, status, duration_seconds=0, error_message=None, **kwargs
+        session,
+        test_run_id,
+        test_case_id,
+        status,
+        duration_seconds=0,
+        error_message=None,
+        **kwargs,
     ):
         called["reported"].append((test_case_id, status, error_message))
 
@@ -67,7 +73,9 @@ def test_run_test_case_success_and_failure(monkeypatch):
     # success case
     page = FakePage(content_text="contains-OK")
     steps = [Step("assert", None, "contains-OK")]
-    ok = exe._run_test_case(page, session=None, test_run_id="r1", test_case_id="tc1", steps=steps)
+    ok = exe._run_test_case(
+        page, session=None, test_run_id="r1", test_case_id="tc1", steps=steps
+    )
     assert ok is True
 
     # failure case triggers artifact capture and report

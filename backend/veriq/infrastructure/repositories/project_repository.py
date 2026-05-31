@@ -5,7 +5,9 @@ from sqlalchemy.orm import Session
 from veriq.infrastructure.db.models import ProjectModel
 
 
-def create_project(session: Session, workspace_id: str, name: str, slug: str) -> ProjectModel:
+def create_project(
+    session: Session, workspace_id: str, name: str, slug: str
+) -> ProjectModel:
     """Description: Create a project under a workspace.
     Parameters:
         session: Database session.
@@ -36,10 +38,16 @@ def list_projects(session: Session, workspace_id: str) -> list[ProjectModel]:
         projects = list_projects(session, ws_id)
     """
 
-    return session.query(ProjectModel).filter(ProjectModel.workspace_id == workspace_id).all()
+    return (
+        session.query(ProjectModel)
+        .filter(ProjectModel.workspace_id == workspace_id)
+        .all()
+    )
 
 
-def get_project_by_slug(session: Session, workspace_id: str, slug: str) -> ProjectModel | None:
+def get_project_by_slug(
+    session: Session, workspace_id: str, slug: str
+) -> ProjectModel | None:
     """Description: Fetch a project by workspace and slug.
     Parameters:
         session: Database session.

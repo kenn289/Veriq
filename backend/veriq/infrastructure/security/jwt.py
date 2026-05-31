@@ -35,7 +35,9 @@ def create_access_token(subject: str, tenant_id: str) -> str:
     expires_delta = timedelta(minutes=settings.access_token_expire_minutes)
     expire = datetime.now(UTC) + expires_delta
     payload = {"sub": subject, "tenant_id": tenant_id, "exp": int(expire.timestamp())}
-    return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
+    return jwt.encode(
+        payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm
+    )
 
 
 def decode_access_token(token: str) -> TokenPayload:
@@ -50,7 +52,9 @@ def decode_access_token(token: str) -> TokenPayload:
 
     settings = get_settings()
     try:
-        payload = jwt.decode(token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm])
+        payload = jwt.decode(
+            token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm]
+        )
     except JWTError as exc:
         raise ValueError("Invalid token") from exc
 

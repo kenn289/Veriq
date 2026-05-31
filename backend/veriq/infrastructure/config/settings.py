@@ -39,7 +39,9 @@ class Settings(BaseSettings):
     llm_adapter_dir: str | None = None
     generation_defaults: dict | None = None
 
-    model_config = SettingsConfigDict(env_prefix="VERIQ_", env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_prefix="VERIQ_", env_file=".env", extra="ignore"
+    )
 
 
 @lru_cache

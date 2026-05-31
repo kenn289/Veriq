@@ -23,7 +23,9 @@ def create_workspace(
     """
 
     resolved_slug = slug or slugify(name)
-    workspace = workspace_repository.create_workspace(session, organization_id, name, resolved_slug)
+    workspace = workspace_repository.create_workspace(
+        session, organization_id, name, resolved_slug
+    )
     return workspace
 
 

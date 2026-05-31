@@ -34,16 +34,22 @@ def get_current_user(
     """
 
     if credentials is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing token"
+        )
 
     try:
         payload = decode_access_token(credentials.credentials)
     except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)
+        ) from exc
 
     user = user_repository.get_user_by_id(session, payload.tenant_id, payload.sub)
     if user is None or not user.is_active:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+        )
 
     return user
 
@@ -66,7 +72,9 @@ def require_workspace_roles(roles: list[str]) -> Callable:
         if not role_access_repository.user_has_role_in_workspace(
             session, workspace_id, user.id, roles
         ):
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden"
+            )
 
     return _dependency
 
@@ -88,7 +96,9 @@ def require_tenant_roles(roles: list[str]) -> Callable:
         if not tenant_access_repository.user_has_role_in_tenant(
             session, user.tenant_id, user.id, roles
         ):
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden"
+            )
 
     return _dependency
 

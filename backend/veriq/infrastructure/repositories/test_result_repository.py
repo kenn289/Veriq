@@ -62,7 +62,11 @@ def get_test_result(session: Session, result_id: str) -> TestResultModel | None:
         result = get_test_result(session, result_id)
     """
 
-    return session.query(TestResultModel).filter(TestResultModel.id == result_id).one_or_none()
+    return (
+        session.query(TestResultModel)
+        .filter(TestResultModel.id == result_id)
+        .one_or_none()
+    )
 
 
 def list_test_results(session: Session, test_run_id: str) -> list[TestResultModel]:
