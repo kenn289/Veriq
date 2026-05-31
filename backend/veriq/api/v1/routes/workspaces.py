@@ -10,7 +10,10 @@ from veriq.api.dependencies.auth import (
 )
 from veriq.api.dependencies.db import get_session
 from veriq.api.v1.schemas.workspace import WorkspaceCreateRequest, WorkspaceResponse
-from veriq.application.services.workspace_service import create_workspace, list_user_workspaces
+from veriq.application.services.workspace_service import (
+    create_workspace,
+    list_user_workspaces,
+)
 from veriq.application.utils.slug import slugify
 from veriq.infrastructure.repositories import (
     membership_repository,

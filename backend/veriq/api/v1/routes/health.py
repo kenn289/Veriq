@@ -3,7 +3,10 @@ from __future__ import annotations
 from fastapi import APIRouter
 
 from veriq.api.v1.schemas.health import HealthResponse, VersionResponse
-from veriq.application.services.health_service import get_health_status, get_version_info
+from veriq.application.services.health_service import (
+    get_health_status,
+    get_version_info,
+)
 
 router = APIRouter(tags=["system"])
 
@@ -52,5 +55,7 @@ def version_check() -> VersionResponse:
 
     info = get_version_info()
     return VersionResponse(
-        app_name=info.app_name, app_version=info.app_version, environment=info.environment
+        app_name=info.app_name,
+        app_version=info.app_version,
+        environment=info.environment,
     )

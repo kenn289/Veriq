@@ -26,7 +26,10 @@ def create_user(
     """
 
     user = UserModel(
-        tenant_id=tenant_id, email=email, full_name=full_name, password_hash=password_hash
+        tenant_id=tenant_id,
+        email=email,
+        full_name=full_name,
+        password_hash=password_hash,
     )
     session.add(user)
     session.commit()

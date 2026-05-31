@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 
 from veriq.api.v1 import router as v1_router
 from veriq.infrastructure.config.settings import get_settings
@@ -23,6 +24,16 @@ def create_app(seed_roles_on_startup: bool | None = None) -> FastAPI:
         title=settings.app_name,
         version=settings.app_version,
         description="Veriq API for autonomous test engineering.",
+    )
+
+    # CORS
+    origins = ["*"]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
     @app.on_event("startup")

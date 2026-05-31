@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  web:
+    image: ${WEB_IMAGE}:${IMAGE_TAG}
+    environment:
+      VERIQ_DATABASE_URL: postgresql+psycopg://veriq:veriq@db:5432/veriq
+      VERIQ_REDIS_URL: redis://redis:6379/0
+      VERIQ_CELERY_BROKER_URL: redis://redis:6379/1
+      VERIQ_CELERY_RESULT_BACKEND: redis://redis:6379/2
+      VERIQ_CELERY_ENABLED: "false"
+      VERIQ_EXECUTION_BACKEND: "local"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+
+  worker:
+    image: ${WORKER_IMAGE}:${IMAGE_TAG}
+    command: celery -A veriq.celery_app.celery_app worker --loglevel=info -Q default
+    depends_on:
+      - redis
+      - db

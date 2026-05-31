@@ -1,0 +1,76 @@
+name: Manual Verify & Upload Signatures
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag to verify (e.g., commit sha or v1.2.3)'
+        required: true
+      web_image:
+        description: 'Web image name (registry/org/name)'
+        required: true
+      worker_image:
+        description: 'Worker image name (registry/org/name)'
+        required: true
+
+jobs:
+  verify-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set variables
+        run: |
+          echo "IMAGE_TAG=${{ github.event.inputs.image_tag }}" >> $GITHUB_ENV
+          echo "WEB_IMAGE=${{ github.event.inputs.web_image }}" >> $GITHUB_ENV
+          echo "WORKER_IMAGE=${{ github.event.inputs.worker_image }}" >> $GITHUB_ENV
+
+      - name: Install tools and verify
+        run: |
+          sudo apt-get update && sudo apt-get install -y curl jq
+          curl -fsSL -o /usr/local/bin/mc https://dl.min.io/client/mc/release/linux-amd64/mc
+          sudo chmod +x /usr/local/bin/mc
+          COSIGN_VERSION=$(curl -s https://api.github.com/repos/sigstore/cosign/releases/latest | jq -r .tag_name)
+          curl -fsSL -o cosign https://github.com/sigstore/cosign/releases/download/${COSIGN_VERSION}/cosign-linux-amd64
+          chmod +x cosign
+          sudo mv cosign /usr/local/bin/cosign
+
+          cosign verify --output-signature web.sig ${WEB_IMAGE}:${IMAGE_TAG} || true
+          cosign verify --output-signature worker.sig ${WORKER_IMAGE}:${IMAGE_TAG} || true
+
+          web_id=$(docker image inspect --format='{{.Id}}' ${WEB_IMAGE}:${IMAGE_TAG}) || web_id=""
+          worker_id=$(docker image inspect --format='{{.Id}}' ${WORKER_IMAGE}:${IMAGE_TAG}) || worker_id=""
+          git_sha=$(git rev-parse --short HEAD || echo "")
+          timestamp=$(date --iso-8601=seconds)
+
+          jq -n --arg web_image "${WEB_IMAGE}:${IMAGE_TAG}" --arg worker_image "${WORKER_IMAGE}:${IMAGE_TAG}" --arg web_id "$web_id" --arg worker_id "$worker_id" --arg git_sha "$git_sha" --arg ts "$timestamp" '{web_image: $web_image, worker_image: $worker_image, web_image_id: $web_id, worker_image_id: $worker_id, git_sha: $git_sha, timestamp: $ts}' > provenance.json
+          if [ -n "${MINIO_ENDPOINT:-}" ] && [ -n "${MINIO_ACCESS_KEY:-}" ] && [ -n "${MINIO_SECRET_KEY:-}" ] && [ -n "${MINIO_BUCKET:-}" ]; then
+            mc alias set myminio ${MINIO_ENDPOINT} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY} --api S3v4
+            mc mb --ignore-existing myminio/${MINIO_BUCKET}
+            mc cp web.sig myminio/${MINIO_BUCKET}/signatures/${IMAGE_TAG}/web.sig || true
+            mc cp worker.sig myminio/${MINIO_BUCKET}/signatures/${IMAGE_TAG}/worker.sig || true
+            mc cp provenance.json myminio/${MINIO_BUCKET}/signatures/${IMAGE_TAG}/provenance.json || true
+          elif [ -n "${AWS_S3_BUCKET:-}" ] && [ -n "${AWS_DEFAULT_REGION:-}" ]; then
+            aws s3 cp web.sig s3://${AWS_S3_BUCKET}/signatures/${IMAGE_TAG}/web.sig || true
+            aws s3 cp worker.sig s3://${AWS_S3_BUCKET}/signatures/${IMAGE_TAG}/worker.sig || true
+            aws s3 cp provenance.json s3://${AWS_S3_BUCKET}/signatures/${IMAGE_TAG}/provenance.json || true
+            aws s3api head-object --bucket ${AWS_S3_BUCKET} --key signatures/${IMAGE_TAG}/provenance.json
+          else
+            echo "No MINIO or AWS S3 credentials provided; skipping upload"
+          fi
+        env:
+          MINIO_ENDPOINT: ${{ secrets.MINIO_ENDPOINT }}
+          MINIO_ACCESS_KEY: ${{ secrets.MINIO_ACCESS_KEY }}
+          MINIO_SECRET_KEY: ${{ secrets.MINIO_SECRET_KEY }}
+          MINIO_BUCKET: ${{ secrets.MINIO_BUCKET }}
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Configure AWS credentials for S3 (if provided)
+        if: ${{ secrets.AWS_ACCESS_KEY_ID != '' && secrets.AWS_SECRET_ACCESS_KEY != '' }}
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}

@@ -39,6 +39,7 @@ class TestResultResponse(BaseModel):
     status: str
     duration_seconds: int
     error_message: str | None
+    failure_screenshot: str | None = None
     attempts: int
     created_at: str
 

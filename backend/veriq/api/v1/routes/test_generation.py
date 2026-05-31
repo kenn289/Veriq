@@ -8,7 +8,9 @@ from veriq.api.v1.schemas.test_generation import (
     TestGenerationRequest,
     TestGenerationResponse,
 )
-from veriq.infrastructure.ai.test_generation_provider import get_test_generation_provider
+from veriq.infrastructure.ai.test_generation_provider import (
+    get_test_generation_provider,
+)
 
 router = APIRouter(prefix="/ai", tags=["ai"])
 

@@ -8,6 +8,7 @@ import {
 } from "recharts";
 
 import { Button } from "@/components/ui/button";
+import TestRuns from "@/components/TestRuns";
 
 const executionData = [
   { name: "Mon", executions: 120, passRate: 97 },
@@ -126,6 +127,10 @@ export default function App(): JSX.Element {
           </section>
         </main>
       </div>
+
+      <section className="mx-auto max-w-6xl px-6 pb-20">
+        <TestRuns workspaceId={import.meta.env.VITE_WORKSPACE_ID || "default"} />
+      </section>
 
       <section className="mx-auto grid max-w-6xl gap-6 px-6 pb-20 md:grid-cols-3">
         {[

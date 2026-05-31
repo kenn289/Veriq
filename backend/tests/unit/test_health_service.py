@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from veriq.application.services.health_service import get_health_status, get_version_info
+from veriq.application.services.health_service import (
+    get_health_status,
+    get_version_info,
+)
 
 
 def test_get_health_status() -> None:

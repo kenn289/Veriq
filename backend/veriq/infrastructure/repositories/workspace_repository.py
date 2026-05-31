@@ -94,6 +94,9 @@ def get_workspace_by_slug(
 
     return (
         session.query(WorkspaceModel)
-        .filter(WorkspaceModel.organization_id == organization_id, WorkspaceModel.slug == slug)
+        .filter(
+            WorkspaceModel.organization_id == organization_id,
+            WorkspaceModel.slug == slug,
+        )
         .one_or_none()
     )

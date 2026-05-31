@@ -5,7 +5,10 @@ from sqlalchemy.orm import Session
 
 from veriq.api.dependencies.auth import get_current_user, require_tenant_roles
 from veriq.api.dependencies.db import get_session
-from veriq.api.v1.schemas.organization import OrganizationCreateRequest, OrganizationResponse
+from veriq.api.v1.schemas.organization import (
+    OrganizationCreateRequest,
+    OrganizationResponse,
+)
 from veriq.application.services.organization_service import (
     create_organization,
     list_organizations,

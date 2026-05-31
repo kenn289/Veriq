@@ -24,7 +24,9 @@ from veriq.infrastructure.repositories import (
 )
 
 
-def _register_admin_and_get_headers(client: TestClient) -> tuple[dict[str, str], str, str]:
+def _register_admin_and_get_headers(
+    client: TestClient,
+) -> tuple[dict[str, str], str, str]:
     register_response = client.post(
         "/api/v1/auth/register",
         json={

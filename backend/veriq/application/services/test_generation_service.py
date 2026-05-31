@@ -198,7 +198,10 @@ def _generate_rule_based_suite(requirement: str, scenario_limit: int = 3) -> Gen
             name=f"Successful {focus}",
             description=f"Validate the primary happy path for {focus}.",
             priority=1,
-            preconditions=["User has access to the application", "Required test data exists"],
+            preconditions=[
+                "User has access to the application",
+                "Required test data exists",
+            ],
             steps=_base_steps(entry_point),
             assertions=["The expected success state is visible"],
             tags=tags,

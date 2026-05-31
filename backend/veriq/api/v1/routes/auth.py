@@ -12,7 +12,10 @@ from veriq.api.v1.schemas.auth import (
     TokenResponse,
     UserProfileResponse,
 )
-from veriq.application.services.auth_service import authenticate_user, register_tenant_admin
+from veriq.application.services.auth_service import (
+    authenticate_user,
+    register_tenant_admin,
+)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

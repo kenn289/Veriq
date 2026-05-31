@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from threading import Thread
 
 from sqlalchemy.orm import Session
 
+from veriq.infrastructure.config.settings import get_settings
 from veriq.infrastructure.db.models import TestResultModel, TestRunModel
+from veriq.infrastructure.db.session import get_session_factory
 from veriq.infrastructure.repositories import test_result_repository as trs_repo
 from veriq.infrastructure.repositories import test_run_repository as tr_repo
 
@@ -45,12 +48,75 @@ def start_test_run(session: Session, test_run_id: str) -> TestRunModel | None:
     """
 
     now = datetime.now(UTC)
-    return tr_repo.update_test_run_status(
+    run = tr_repo.update_test_run_status(
         session=session,
         test_run_id=test_run_id,
         status="in_progress",
         started_at=now,
     )
+
+    # Decide between async (Celery) or local synchronous execution
+    settings = get_settings()
+
+    if settings.celery_enabled:
+        # enqueue Celery task and return immediately
+        try:
+            from veriq.tasks.test_run_tasks import execute_test_run_task
+
+            execute_test_run_task.delay(test_run_id)
+        except Exception:
+            now_done = datetime.now(UTC)
+            tr_repo.update_test_run_status(
+                session=session,
+                test_run_id=test_run_id,
+                status="error",
+                completed_at=now_done,
+            )
+    else:
+        # Run executor in a background thread so the API returns in_progress
+        # immediately (keeps test expectations and API responsiveness).
+        try:
+            # LocalTestExecutor is imported here to avoid circular imports
+            from veriq.execution.local_executor import LocalTestExecutor
+
+            def _run_and_update(run_id: str) -> None:
+                # new session for background work
+                session_factory = get_session_factory()
+                bg_session = session_factory()
+                try:
+                    executor = LocalTestExecutor()
+                    duration = executor.execute_test_run(bg_session, run_id)
+                    tr_repo.update_test_run_status(
+                        session=bg_session,
+                        test_run_id=run_id,
+                        status="completed",
+                        duration_seconds=duration,
+                    )
+                    bg_session.commit()
+                except Exception:
+                    now_done = datetime.now(UTC)
+                    tr_repo.update_test_run_status(
+                        session=bg_session,
+                        test_run_id=run_id,
+                        status="error",
+                        completed_at=now_done,
+                    )
+                    bg_session.commit()
+                finally:
+                    bg_session.close()
+
+            thread = Thread(target=_run_and_update, args=(test_run_id,), daemon=True)
+            thread.start()
+        except Exception:
+            now_done = datetime.now(UTC)
+            tr_repo.update_test_run_status(
+                session=session,
+                test_run_id=test_run_id,
+                status="error",
+                completed_at=now_done,
+            )
+
+    return run
 
 
 def complete_test_run(

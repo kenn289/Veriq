@@ -29,7 +29,10 @@ def test_api_uses_model_provider(monkeypatch, tmp_path):
 
     client = TestClient(app)
 
-    payload = {"requirement": "Users can log in with email and password", "scenario_limit": 2}
+    payload = {
+        "requirement": "Users can log in with email and password",
+        "scenario_limit": 2,
+    }
     resp = client.post("/api/v1/ai/test-generation", json=payload)
     assert resp.status_code == 200
     body = resp.json()

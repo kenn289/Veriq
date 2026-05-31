@@ -65,7 +65,9 @@ def cleanup_old_objects(client: Minio, bucket: str, prefix: str, days: int) -> N
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--cleanup-only", action="store_true", help="Only run cleanup; do not upload files"
+        "--cleanup-only",
+        action="store_true",
+        help="Only run cleanup; do not upload files",
     )
     args = parser.parse_args()
 

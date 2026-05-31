@@ -11,7 +11,10 @@ from veriq.main import app
 client = TestClient(app)
 resp = client.post(
     "/api/v1/ai/test-generation",
-    json={"requirement": "Users can log in with email and password", "scenario_limit": 2},
+    json={
+        "requirement": "Users can log in with email and password",
+        "scenario_limit": 2,
+    },
 )
 print("status", resp.status_code)
 print(resp.json())

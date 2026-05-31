@@ -1,0 +1,53 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: veriq
+      POSTGRES_USER: veriq
+      POSTGRES_PASSWORD: veriq
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+      - redis
+    environment:
+      VERIQ_DATABASE_URL: postgresql+psycopg://veriq:veriq@db:5432/veriq
+      VERIQ_REDIS_URL: redis://redis:6379/0
+      VERIQ_CELERY_BROKER_URL: redis://redis:6379/1
+      VERIQ_CELERY_RESULT_BACKEND: redis://redis:6379/2
+      VERIQ_CELERY_ENABLED: "true"
+      VERIQ_EXECUTION_BACKEND: "local"
+    ports:
+      - "8000:8000"
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A veriq.celery_app.celery_app worker --loglevel=info -Q default
+    depends_on:
+      - redis
+      - db
+    environment:
+      VERIQ_DATABASE_URL: postgresql+psycopg://veriq:veriq@db:5432/veriq
+      VERIQ_REDIS_URL: redis://redis:6379/0
+      VERIQ_CELERY_BROKER_URL: redis://redis:6379/1
+      VERIQ_CELERY_RESULT_BACKEND: redis://redis:6379/2
+      VERIQ_CELERY_ENABLED: "true"
+      VERIQ_EXECUTION_BACKEND: "local"
+
+volumes:
+  db-data:
