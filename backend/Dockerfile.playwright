@@ -1,0 +1,58 @@
+
+FROM python:3.12-slim
+
+LABEL org.opencontainers.image.title="veriq-worker-playwright"
+LABEL org.opencontainers.image.source="https://github.com/yourorg/yourrepo"
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Install runtime deps required by Playwright and a small proc tool for healthchecks
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       ca-certificates \
+       libnss3 \
+       libatk1.0-0 \
+       libatk-bridge2.0-0 \
+       libcups2 \
+       libx11-xcb1 \
+       libxcomposite1 \
+       libxdamage1 \
+       libxrandr2 \
+       libgbm1 \
+       libasound2 \
+       libpangocairo-1.0-0 \
+       libgtk-3-0 \
+       fonts-liberation \
+       procps \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy minimal project metadata first to leverage Docker cache for dependencies
+COPY backend/pyproject.toml backend/poetry.lock* /app/
+
+# Upgrade pip and install package with Playwright extras into user site to avoid system-wide packages
+RUN python -m pip install --upgrade pip setuptools wheel \
+    && python -m pip install --no-cache-dir -e .[playwright]
+
+# Copy source
+COPY backend /app
+
+# Install Playwright browsers (with dependencies where available)
+RUN python -m playwright install --with-deps || python -m playwright install || true
+
+# Create a non-root user and ensure local bin is in PATH
+RUN useradd -u 1000 -ms /bin/bash veriq \
+    && mkdir -p /home/veriq/.local/bin \
+    && chown -R veriq:veriq /home/veriq /app
+
+USER veriq
+ENV PATH="/home/veriq/.local/bin:${PATH}"
+
+# Healthcheck: ensure a celery process is running (returns non-zero if not)
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD pgrep -f celery || exit 1
+
+# Default: run a Celery worker; override in compose or runtime as needed
+CMD ["celery", "-A", "veriq.celery_app.celery_app", "worker", "--loglevel=info"]

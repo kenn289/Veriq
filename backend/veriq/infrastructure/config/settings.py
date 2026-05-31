@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
     celery_broker_url: str = "redis://localhost:6379/1"
     celery_result_backend: str = "redis://localhost:6379/2"
+    celery_enabled: bool = False
+    execution_backend: str = "local"  # 'local' or 'playwright'
+    playwright_browser: str = "chromium"
 
     minio_endpoint: str = "http://localhost:9000"
     minio_access_key: str = "veriq"

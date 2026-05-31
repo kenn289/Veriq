@@ -157,6 +157,7 @@ def get_test_run(
                 status=r.status,
                 duration_seconds=r.duration_seconds,
                 error_message=r.error_message,
+                failure_screenshot=getattr(r, "failure_screenshot", None),
                 attempts=r.attempts,
                 created_at=r.created_at.isoformat(),
             )
@@ -213,6 +214,7 @@ def report_result(
             status=result.status,
             duration_seconds=result.duration_seconds,
             error_message=result.error_message,
+            failure_screenshot=getattr(result, "failure_screenshot", None),
             attempts=result.attempts,
             created_at=result.created_at.isoformat(),
         )

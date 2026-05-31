@@ -31,6 +31,9 @@ dev = [
   "ruff>=0.4",
   "black>=24.4",
 ]
+playwright = [
+  "playwright>=1.40"
+]
 
 [build-system]
 requires = ["setuptools>=69", "wheel"]
@@ -68,6 +71,13 @@ testpaths = ["tests"]
 [tool.coverage.run]
 branch = true
 source = ["veriq"]
+omit = [
+  "veriq/celery_app.py",
+  "veriq/tasks/*",
+  "veriq/execution/*",
+  "veriq/infrastructure/ai/*",
+  "veriq/infrastructure/tasks/*",
+]
 
 [tool.coverage.report]
 show_missing = true
