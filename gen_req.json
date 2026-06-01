@@ -1,0 +1,88 @@
+﻿{"plan":{
+    "requirement":  "Users can log in and view their dashboard and see a summary of test runs",
+    "summary":  "Generated 2 scenarios for generic workflow.",
+    "focus":  "generic workflow",
+    "scenarios":  [
+                      {
+                          "name":  "Successful generic workflow",
+                          "description":  "Validate the primary happy path for generic workflow.",
+                          "priority":  1,
+                          "preconditions":  [
+                                                "User has access to the application",
+                                                "Required test data exists"
+                                            ],
+                          "steps":  [
+                                        {
+                                            "order":  1,
+                                            "action":  "navigate",
+                                            "target":  "/feature",
+                                            "value":  null,
+                                            "description":  "Open the /feature entry point."
+                                        },
+                                        {
+                                            "order":  2,
+                                            "action":  "interact",
+                                            "target":  null,
+                                            "value":  null,
+                                            "description":  "Perform the primary user action described in the requirement."
+                                        },
+                                        {
+                                            "order":  3,
+                                            "action":  "assert",
+                                            "target":  null,
+                                            "value":  null,
+                                            "description":  "Verify the expected outcome is visible or persisted."
+                                        }
+                                    ],
+                          "assertions":  [
+                                             "The expected success state is visible"
+                                         ],
+                          "tags":  [
+                                       "regression",
+                                       "smoke",
+                                       "ui"
+                                   ]
+                      },
+                      {
+                          "name":  "Invalid generic workflow input",
+                          "description":  "Verify the validation behavior for invalid generic workflow data.",
+                          "priority":  2,
+                          "preconditions":  [
+                                                "User is on the relevant screen"
+                                            ],
+                          "steps":  [
+                                        {
+                                            "order":  1,
+                                            "action":  "navigate",
+                                            "target":  "/feature",
+                                            "value":  null,
+                                            "description":  "Open the /feature entry point."
+                                        },
+                                        {
+                                            "order":  2,
+                                            "action":  "interact",
+                                            "target":  null,
+                                            "value":  "invalid-input",
+                                            "description":  "Submit an invalid or incomplete payload."
+                                        },
+                                        {
+                                            "order":  3,
+                                            "action":  "assert",
+                                            "target":  null,
+                                            "value":  null,
+                                            "description":  "Verify the validation message or rejection state is shown."
+                                        }
+                                    ],
+                          "assertions":  [
+                                             "Validation feedback is shown"
+                                         ],
+                          "tags":  [
+                                       "regression",
+                                       "smoke",
+                                       "ui",
+                                       "negative"
+                                   ]
+                      }
+                  ]
+}
+}

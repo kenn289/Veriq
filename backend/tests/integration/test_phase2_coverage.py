@@ -120,7 +120,7 @@ def test_test_case_and_test_run_routes_cover_main_branches(
     headers, _, workspace_id = _register_admin_and_get_headers(client)
 
     test_case_response = client.post(
-        "/api/v1/api/v1/test_cases",
+        "/api/v1/test_cases",
         params={"workspace_id": workspace_id},
         json={"name": "Login Test", "priority": 2},
         headers=headers,
@@ -129,7 +129,7 @@ def test_test_case_and_test_run_routes_cover_main_branches(
     test_case_id = test_case_response.json()["id"]
 
     duplicate_response = client.post(
-        "/api/v1/api/v1/test_cases",
+        "/api/v1/test_cases",
         params={"workspace_id": workspace_id},
         json={"name": "Login Test", "priority": 2},
         headers=headers,
@@ -137,32 +137,32 @@ def test_test_case_and_test_run_routes_cover_main_branches(
     assert duplicate_response.status_code == 400
 
     list_cases_response = client.get(
-        "/api/v1/api/v1/test_cases",
+        "/api/v1/test_cases",
         params={"workspace_id": workspace_id},
         headers=headers,
     )
     assert list_cases_response.status_code == 200
     assert len(list_cases_response.json()) == 1
 
-    get_case_response = client.get(f"/api/v1/api/v1/test_cases/{test_case_id}", headers=headers)
+    get_case_response = client.get(f"/api/v1/test_cases/{test_case_id}", headers=headers)
     assert get_case_response.status_code == 200
 
     add_step_response = client.post(
-        f"/api/v1/api/v1/test_cases/{test_case_id}/steps",
+        f"/api/v1/test_cases/{test_case_id}/steps",
         json={"action": "navigate", "target": "/login"},
         headers=headers,
     )
     assert add_step_response.status_code == 201
 
     steps_response = client.get(
-        f"/api/v1/api/v1/test_cases/{test_case_id}/steps",
+        f"/api/v1/test_cases/{test_case_id}/steps",
         headers=headers,
     )
     assert steps_response.status_code == 200
     assert len(steps_response.json()) == 1
 
     test_run_response = client.post(
-        "/api/v1/api/v1/test_runs",
+        "/api/v1/test_runs",
         params={"workspace_id": workspace_id},
         json={"name": "Nightly Run"},
         headers=headers,
@@ -171,19 +171,19 @@ def test_test_case_and_test_run_routes_cover_main_branches(
     test_run_id = test_run_response.json()["id"]
 
     list_runs_response = client.get(
-        "/api/v1/api/v1/test_runs",
+        "/api/v1/test_runs",
         params={"workspace_id": workspace_id},
         headers=headers,
     )
     assert list_runs_response.status_code == 200
     assert len(list_runs_response.json()) == 1
 
-    start_response = client.post(f"/api/v1/api/v1/test_runs/{test_run_id}/start", headers=headers)
+    start_response = client.post(f"/api/v1/test_runs/{test_run_id}/start", headers=headers)
     assert start_response.status_code == 200
     assert start_response.json()["status"] == "in_progress"
 
     result_response = client.post(
-        f"/api/v1/api/v1/test_runs/{test_run_id}/results",
+        f"/api/v1/test_runs/{test_run_id}/results",
         json={
             "test_case_id": test_case_id,
             "status": "passed",
@@ -194,18 +194,18 @@ def test_test_case_and_test_run_routes_cover_main_branches(
     assert result_response.status_code == 201
 
     summary_response = client.get(
-        f"/api/v1/api/v1/test_runs/{test_run_id}/summary",
+        f"/api/v1/test_runs/{test_run_id}/summary",
         headers=headers,
     )
     assert summary_response.status_code == 200
     assert summary_response.json()["passed"] == 1
 
-    detail_response = client.get(f"/api/v1/api/v1/test_runs/{test_run_id}", headers=headers)
+    detail_response = client.get(f"/api/v1/test_runs/{test_run_id}", headers=headers)
     assert detail_response.status_code == 200
     assert len(detail_response.json()["results"]) == 1
 
     complete_response = client.post(
-        f"/api/v1/api/v1/test_runs/{test_run_id}/complete",
+        f"/api/v1/test_runs/{test_run_id}/complete",
         params={"duration_seconds": 99},
         headers=headers,
     )

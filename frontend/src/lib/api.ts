@@ -112,14 +112,60 @@ export async function generateTestPlan(requirement: string, scenarioLimit = 3) {
   });
 }
 
+export async function generateCode(plan: any, workspaceId?: string | null, target = "playwright-ts") {
+  const qs: string[] = [];
+  if (workspaceId) qs.push(`workspace_id=${encodeURIComponent(workspaceId)}`);
+  if (target) qs.push(`target=${encodeURIComponent(target)}`);
+  const url = `${API_BASE}/api/v1/ai/generate-code${qs.length ? `?${qs.join("&")}` : ""}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { ...headers() },
+    body: JSON.stringify({ plan }),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`${res.status} ${res.statusText} - ${text}`);
+  }
+  // If backend persisted, it returns JSON with download_url
+  const ct = res.headers.get("content-type") || "";
+  if (ct.includes("application/json")) {
+    const data = await res.json();
+    if (data?.download_url && data.download_url.startsWith("/")) {
+      // convert to absolute URL using API_BASE so browser can download from backend host
+      data.download_url = `${API_BASE}${data.download_url}`;
+    }
+    return data;
+  }
+  // otherwise return blob for direct download
+  return res.blob();
+}
+
 export async function listTestRuns(workspaceId: string) {
   return request(`/api/v1/test_runs?workspace_id=${encodeURIComponent(workspaceId)}`);
+}
+
+export async function listTestCases(workspaceId: string) {
+  return request(`/api/v1/test_cases?workspace_id=${encodeURIComponent(workspaceId)}`);
 }
 
 export async function createTestRun(name: string, workspaceId: string) {
   return request(`/api/v1/test_runs?workspace_id=${encodeURIComponent(workspaceId)}`, {
     method: "POST",
     body: JSON.stringify({ name }),
+  });
+}
+
+export async function createTestCase(name: string, workspaceId: string) {
+  return request(`/api/v1/test_cases?workspace_id=${encodeURIComponent(workspaceId)}`, {
+    method: "POST",
+    body: JSON.stringify({ name, priority: 1 }),
+  });
+}
+
+export async function addTestStep(testCaseId: string, step: { action: string; target?: string | null; value?: string | null; description?: string | null; }) {
+  return request(`/api/v1/test_cases/${encodeURIComponent(testCaseId)}/steps`, {
+    method: "POST",
+    body: JSON.stringify(step),
   });
 }
 
@@ -147,8 +193,12 @@ export default {
   registerTenantAdmin,
   listWorkspaces,
   generateTestPlan,
+  generateCode,
   listTestRuns,
   createTestRun,
+  listTestCases,
+  createTestCase,
+  addTestStep,
   startTestRun,
   getTestRun,
   getRunSummary,

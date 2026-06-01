@@ -27,11 +27,15 @@ type TestRun = {
 export default function TestRuns({ workspaceId }: { workspaceId?: string }) {
   const [runs, setRuns] = useState<TestRun[]>([]);
   const [name, setName] = useState("");
+  const [tcName, setTcName] = useState("");
+  const [tcStepAction, setTcStepAction] = useState("navigate");
+  const [tcStepTarget, setTcStepTarget] = useState("");
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<TestRun | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [startingRunId, setStartingRunId] = useState<string | null>(null);
+  const [hasTestCases, setHasTestCases] = useState<boolean | null>(null);
 
   function formatError(e: unknown): string {
     if (e instanceof Error) return e.message;
@@ -51,6 +55,13 @@ export default function TestRuns({ workspaceId }: { workspaceId?: string }) {
     try {
       const data = await api.listTestRuns(workspaceId);
       setRuns(data || []);
+      try {
+        const tcs = await api.listTestCases(workspaceId);
+        setHasTestCases(Boolean(tcs && tcs.length > 0));
+      } catch (e) {
+        // ignore test case list errors; assume none
+        setHasTestCases(false);
+      }
     } catch (e) {
       setError(formatError(e));
       console.error("Failed to load runs", e);
@@ -72,6 +83,28 @@ export default function TestRuns({ workspaceId }: { workspaceId?: string }) {
       const created = await api.createTestRun(name, workspaceId);
       setName("");
       setNotice(`Created test run: ${created?.name || "Untitled"}`);
+      await load();
+    } catch (e) {
+      setError(formatError(e));
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleCreateTestCase() {
+    if (!tcName || !workspaceId) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const created = await api.createTestCase(tcName, workspaceId);
+      const tcId = created?.id;
+      setTcName("");
+      // optionally add a step immediately if provided
+      if (tcStepTarget && tcId) {
+        await api.addTestStep(tcId, { action: tcStepAction, target: tcStepTarget, description: "step added from UI" });
+      }
+      setNotice(`Created test case: ${created?.name || tcName}`);
       await load();
     } catch (e) {
       setError(formatError(e));
@@ -113,11 +146,16 @@ export default function TestRuns({ workspaceId }: { workspaceId?: string }) {
           const detail = await api.getTestRun(id);
           // update list and selected view
           setRuns((rs) => rs.map((x) => (x.id === id ? { ...x, status: detail.status } : x)));
+          // always update selected when the polled id matches
           if (selected && selected.id === id) setSelected(detail);
+          if (!selected || selected.id !== id) {
+            // if the run completed and we don't currently show it, open details automatically
+            if (detail.status && detail.status !== "in_progress") setSelected(detail);
+          }
           if (detail.status && detail.status !== "in_progress") {
             clearInterval(interval);
             load();
-            setSelected(detail);
+                setSelected(detail);
             if (!detail.results || detail.results.length === 0) {
               setNotice("Run completed, but no test cases were found in this workspace.");
             } else {
@@ -173,6 +211,20 @@ export default function TestRuns({ workspaceId }: { workspaceId?: string }) {
         </Button>
       </div>
 
+      <div className="mt-6">
+        <h4 className="font-medium">Create Test Case</h4>
+        <div className="mt-2 flex gap-2">
+          <input value={tcName} onChange={(e)=>setTcName(e.target.value)} placeholder="Test case name" className="rounded-md px-3 py-2 flex-1" />
+          <input value={tcStepTarget} onChange={(e)=>setTcStepTarget(e.target.value)} placeholder="Optional step target (e.g. /login or #submit)" className="rounded-md px-3 py-2 flex-1" />
+          <select value={tcStepAction} onChange={(e)=>setTcStepAction(e.target.value)} className="rounded-md border px-2 py-1">
+            <option value="navigate">navigate</option>
+            <option value="click">click</option>
+            <option value="type">type</option>
+          </select>
+          <Button onClick={handleCreateTestCase} disabled={loading || !tcName || !workspaceId}>Create Case</Button>
+        </div>
+      </div>
+
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         <div>
           {loading ? (
@@ -191,7 +243,11 @@ export default function TestRuns({ workspaceId }: { workspaceId?: string }) {
                   <Button
                     variant="outline"
                     onClick={() => handleStart(r.id)}
-                    disabled={r.status === "in_progress" || startingRunId === r.id}
+                    disabled={
+                      r.status === "in_progress" ||
+                      startingRunId === r.id ||
+                      hasTestCases === false
+                    }
                   >
                     {startingRunId === r.id ? "Starting..." : "Start"}
                   </Button>
