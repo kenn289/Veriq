@@ -112,7 +112,7 @@ export async function generateTestPlan(requirement: string, scenarioLimit = 3) {
   });
 }
 
-export async function generateCode(plan: any, workspaceId?: string | null, target = "playwright-ts") {
+export async function generateCode(plan: unknown, workspaceId?: string | null, target = "playwright-ts") {
   const qs: string[] = [];
   if (workspaceId) qs.push(`workspace_id=${encodeURIComponent(workspaceId)}`);
   if (target) qs.push(`target=${encodeURIComponent(target)}`);

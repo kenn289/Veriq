@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import api from "@/lib/api";
+
+type GeneratedResponse = { download_url?: string } | null;
 
 export default function TestPlanPage() {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<GeneratedResponse>(null);
   const [error, setError] = useState<string | null>(null);
   const [target, setTarget] = useState("playwright-ts");
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
@@ -17,8 +19,9 @@ export default function TestPlanPage() {
     try {
       const res = await api.generateTestPlan(prompt);
       setResult(res);
-    } catch (err: any) {
-      setError(err?.message || "Failed to generate");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err || "");
+      setError(msg || "Failed to generate");
     } finally {
       setLoading(false);
     }
@@ -29,10 +32,10 @@ export default function TestPlanPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.generateCode(result, workspaceId, target);
-      if (res?.download_url) {
+      const res = (await api.generateCode(result, workspaceId, target)) as unknown;
+      if (res && typeof (res as GeneratedResponse).download_url === "string") {
         // show persistent download link instead of immediate redirect
-        setDownloadUrl(res.download_url);
+        setDownloadUrl((res as GeneratedResponse).download_url);
       } else if (res instanceof Blob) {
         const url = window.URL.createObjectURL(res);
         const a = document.createElement("a");
@@ -46,8 +49,9 @@ export default function TestPlanPage() {
         const url = window.URL.createObjectURL(blob);
         window.open(url, "_blank");
       }
-    } catch (err: any) {
-      setError(err?.message || "Failed to generate code");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err || "");
+      setError(msg || "Failed to generate code");
     } finally {
       setLoading(false);
     }
