@@ -1,0 +1,180 @@
+openapi: 3.0.3
+info:
+  title: VERIQ API
+  version: '1.0.0'
+  description: Starter OpenAPI spec for core VERIQ endpoints (control plane)
+servers:
+  - url: https://api.example.com
+paths:
+  /api/v1/auth/login:
+    post:
+      summary: Login and receive JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tenant_slug:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  token_type:
+                    type: string
+
+  /api/v1/ai/test-generation:
+    post:
+      summary: Generate test plan from requirement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requirement:
+                  type: string
+                scenario_limit:
+                  type: integer
+      responses:
+        '200':
+          description: Test plan response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  scenarios:
+                    type: array
+                    items:
+                      type: object
+
+  /api/v1/ai/generate-code:
+    post:
+      summary: Generate code artifact (async or immediate)
+      parameters:
+        - in: query
+          name: workspace_id
+          schema:
+            type: string
+        - in: query
+          name: target
+          schema:
+            type: string
+            enum: [playwright-ts, pytest-playwright]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                plan:
+                  type: object
+      responses:
+        '202':
+          description: Accepted — background task created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task_id:
+                    type: string
+        '200':
+          description: Immediate zip returned
+          content:
+            application/zip: {}
+
+  /api/v1/tasks/{task_id}:
+    get:
+      summary: Get task status/result
+      parameters:
+        - in: path
+          name: task_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  result:
+                    type: object
+
+  /api/v1/test_runs:
+    post:
+      summary: Create a test run
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                workspace_id:
+                  type: string
+      responses:
+        '201':
+          description: Created
+
+  /api/v1/test_runs/{id}/start:
+    post:
+      summary: Start a test run
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Run started
+
+  /api/v1/test_cases:
+    post:
+      summary: Create a test case
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                priority:
+                  type: integer
+      responses:
+        '201':
+          description: Created
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+- bearerAuth: []
