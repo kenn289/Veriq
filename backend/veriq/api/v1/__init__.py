@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from veriq.api.v1.routes import (
     ai_config,
     auth,
+    executions,
     health,
     organizations,
     projects,
@@ -24,3 +25,4 @@ router.include_router(test_cases.router)
 router.include_router(test_generation.router)
 router.include_router(ai_config.router)
 router.include_router(test_runs.router)
+router.include_router(executions.router)
